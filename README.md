@@ -105,7 +105,7 @@ Follow these steps to spin up the API locally:
 
 ### 1. Clone & Install Dependencies
 ```bash
-git clone <repository-url>
+git clone https://github.com/freepigmovementofficial/freepigweb-backend/tree/main
 cd freepig-backend
 npm install
 ```
