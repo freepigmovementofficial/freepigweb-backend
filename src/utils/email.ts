@@ -2,7 +2,7 @@ import resend from "../config/mailer";
 
 export const sendOTPEmail = async (email: string, otp: string, name: string) => {
   await resend.emails.send({
-    from: "Freepig Movement <onboarding@resend.dev>", // pakai domain resend dulu sebelum punya custom domain
+    from: "onboarding@resend.dev", // pakai domain resend dulu sebelum punya custom domain
     to: email,
     subject: "Verify Your Email - Freepig Movement",
     html: `
