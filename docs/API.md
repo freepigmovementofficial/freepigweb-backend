@@ -6,7 +6,7 @@ Welcome to the REST API documentation for the **Freepig Movement** store and spo
 
 ## Base URL
 - **Local Development**: `http://localhost:5000/api`
-- **Staging / Production**: `https://<your-railway-domain>.up.railway.app/api`
+- **Staging / Production**: `https://freepigweb-backend-production.up.railway.app/api`
 
 ---
 
