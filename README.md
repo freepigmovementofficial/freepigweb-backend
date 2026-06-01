@@ -141,25 +141,4 @@ Inside `package.json`, you have these scripts ready to use:
 
 ---
 
-## Deployment to Railway
-
-To deploy the **Freepig Movement Backend API** to Railway:
-
-### Step 1: Initialize Database on Railway
-1. Go to your Railway Dashboard.
-2. Click **New Project** -> **Provision PostgreSQL**.
-3. Railway will spin up a PostgreSQL instance and automatically inject the `DATABASE_URL` variable.
-
-### Step 2: Deploy the Service
-1. Click **New** -> **Github Repo** and link this repository.
-2. Under **Variables** for your service, add all environment variables specified in `.env` (except `DATABASE_URL` if it's already automatically linked to your PostgreSQL database).
-
-### Step 3: Build & Start Configuration
-Railway will automatically discover Node.js projects. It reads the scripts from your `package.json`:
-- **Build Command**: Railway runs `npm run build`.
-- **Start Command**: Railway runs `npm run start`.
-- Make sure to add `npx prisma migrate deploy` in your Railway setup or as a postinstall step to run migrations automatically during container build.
-
----
-
 *Made with ❤️ by the Freepig Movement Development Team.*
