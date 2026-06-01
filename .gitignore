@@ -1,5 +1,34 @@
-node_modules
-# Keep environment variables out of version control
-.env
+# Dependencies
+node_modules/
 
-/src/generated/prisma
+# Build output
+dist/
+
+# Environment variables
+.env
+.env.test
+.env.local
+.env.production
+
+# Google Service Account (SENSITIVE!)
+service-account.json
+
+# Migration results
+scripts/migration-results.json
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Prisma
+prisma/dev.db
+prisma/dev.db-journal
