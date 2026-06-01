@@ -1,10 +1,10 @@
-# Freepig Movement Backend API 🏄‍♂️
+# Freepig Movement Backend API 
 
 Welcome to the backend service of **Freepig Movement**, a premium digital store for surfboards, apparel, surf accessories, and community rider spotlights. This backend is built using a highly structured, scalable modular architecture using modern and robust technologies.
 
 ---
 
-## 🚀 Tech Stack
+## Tech Stack
 
 - **Runtime Environment**: Node.js
 - **Programming Language**: TypeScript (Strict Mode)
@@ -17,7 +17,7 @@ Welcome to the backend service of **Freepig Movement**, a premium digital store 
 
 ---
 
-## 🛠️ Prerequisites
+## Prerequisites
 
 Ensure you have the following installed on your local machine:
 - **Node.js** (v18.x or v20.x+ recommended)
@@ -28,7 +28,7 @@ Ensure you have the following installed on your local machine:
 
 ---
 
-## 📋 Project Directory Structure
+## Project Directory Structure
 
 The project implements a **Modular Pattern**. Each business domain (module) encapsulates its routes, validation, controller, and services into a single folder, keeping the codebase highly maintainable.
 
@@ -64,7 +64,7 @@ src/
 
 ---
 
-## ⚙️ Environment Variables
+## Environment Variables
 
 Create a `.env` file in the root of the project based on the following configurations:
 
@@ -99,7 +99,7 @@ CLOUDINARY_API_SECRET="your_cloudinary_api_secret"
 
 ---
 
-## 🛠️ Installation & Local Setup
+## Installation & Local Setup
 
 Follow these steps to spin up the API locally:
 
@@ -127,7 +127,7 @@ npm run prisma:seed
 
 ---
 
-## 🎮 Available Scripts
+## Available Scripts
 
 Inside `package.json`, you have these scripts ready to use:
 
@@ -141,7 +141,7 @@ Inside `package.json`, you have these scripts ready to use:
 
 ---
 
-## ☁️ Deployment to Railway
+## Deployment to Railway
 
 To deploy the **Freepig Movement Backend API** to Railway:
 
@@ -162,4 +162,4 @@ Railway will automatically discover Node.js projects. It reads the scripts from 
 
 ---
 
-*Made with 🏄‍♂️ by the Freepig Movement Development Team.*
+*Made with ❤️ by the Freepig Movement Development Team.*

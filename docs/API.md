@@ -1,16 +1,16 @@
-# Freepig Movement REST API Documentation 🏄‍♂️
+# Freepig Movement REST API Documentation 
 
 Welcome to the REST API documentation for the **Freepig Movement** store and spotlight platform. This document covers authentication, standard response structures, and details for every single available endpoint.
 
 ---
 
-## 🌐 Base URL
+## Base URL
 - **Local Development**: `http://localhost:5000/api`
 - **Staging / Production**: `https://<your-railway-domain>.up.railway.app/api`
 
 ---
 
-## 🔒 Authentication
+## Authentication
 
 All protected endpoints require a JWT token transmitted via HTTP headers using the Bearer scheme:
 
@@ -28,7 +28,7 @@ There are two primary roles:
 
 ---
 
-## 📄 Standard Response Formats
+## Standard Response Formats
 
 ### Success Response
 ```json
@@ -85,7 +85,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 
 ---
 
-## 🗂️ Enum Values
+## Enum Values
 
 | Enum Name | Allowed Values |
 |-----------|----------------|
@@ -97,7 +97,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 
 ---
 
-## 🔑 1. Authentication Module (`/auth`)
+## 1. Authentication Module (`/auth`)
 
 ### 1.1 Register User
 - **Method & Path**: `POST /auth/register`
@@ -202,7 +202,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 
 ---
 
-## 🏄‍♂️ 2. Products Module (`/products`)
+## 2. Products Module (`/products`)
 
 ### 2.1 List All Products (Public)
 - **Method & Path**: `GET /products`
@@ -410,7 +410,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 
 ---
 
-## 📝 3. Reviews Module (`/products/:productId/reviews`, `/reviews`)
+## 3. Reviews Module (`/products/:productId/reviews`, `/reviews`)
 
 ### 3.1 List Product Reviews (Public)
 - **Method & Path**: `GET /products/:productId/reviews`
@@ -460,7 +460,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 
 ---
 
-## ❤️ 4. Wishlist Module (`/wishlist`)
+## 4. Wishlist Module (`/wishlist`)
 
 ### 4.1 Toggle Wishlist Product
 - **Method & Path**: `POST /wishlist/:productId`
@@ -566,7 +566,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 
 ---
 
-## 🎨 6. Custom Orders Module (`/custom-orders`)
+## 6. Custom Orders Module (`/custom-orders`)
 
 ### 6.1 Submit Custom Order Enquiry
 - **Method & Path**: `POST /custom-orders`
@@ -610,7 +610,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 
 ---
 
-## 👑 7. Admin Module (`/admin`)
+## 7. Admin Module (`/admin`)
 
 ### 7.1 Dashboard Statistics
 - **Method & Path**: `GET /admin/dashboard`
@@ -687,7 +687,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 
 ---
 
-## 🎬 8. New Releases Module (`/new-releases`)
+## 8. New Releases Module (`/new-releases`)
 
 ### 8.1 Get Active New Release (Public)
 - **Method & Path**: `GET /new-releases/active`
