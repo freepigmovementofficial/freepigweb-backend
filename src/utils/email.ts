@@ -1,11 +1,11 @@
-import transporter from "../config/mailer";
+import resend from "../config/mailer";
 
 export const sendOTPEmail = async (email: string, otp: string, name: string) => {
-    await transporter.sendMail({
-        from: `"Freepig Movement" <${process.env.GMAIL_USER}>`,
-        to: email,
-        subject: "Verify Your Email - Freepig Movement",
-        html: `
+  await resend.emails.send({
+    from: "Freepig Movement <onboarding@resend.dev>", // pakai domain resend dulu sebelum punya custom domain
+    to: email,
+    subject: "Verify Your Email - Freepig Movement",
+    html: `
       <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; background-color: #f9f9f9; border-radius: 8px;">
         <h2 style="color: #252525; margin-bottom: 8px;">Hey, ${name}! 🏄</h2>
         <p style="color: #555; margin-bottom: 24px;">
@@ -24,5 +24,5 @@ export const sendOTPEmail = async (email: string, otp: string, name: string) => 
         </p>
       </div>
     `,
-    });
+  });
 };
