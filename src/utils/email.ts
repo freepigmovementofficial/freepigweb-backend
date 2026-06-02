@@ -1,6 +1,10 @@
 import transporter from "../config/mailer";
 
-export const sendOTPEmail = async (email: string, otp: string, name: string) => {
+export const sendOTPEmail = async (
+  email: string,
+  otp: string,
+  name: string,
+) => {
   await transporter.sendMail({
     from: `"Freepig Movement" <${process.env.GMAIL_USER}>`,
     to: email,
