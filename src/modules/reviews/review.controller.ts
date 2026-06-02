@@ -4,8 +4,18 @@ import {
     createReview,
     updateReview,
     deleteReview,
+    getLatestReviews,
 } from "./review.service";
 import { sendSuccess, sendError } from "../../utils/response";
+
+export const latest = async (req: Request, res: Response) => {
+    try {
+        const data = await getLatestReviews(req.query as any);
+        return sendSuccess(res, data, "Latest reviews fetched successfully");
+    } catch (err: any) {
+        return sendError(res, err.message, err.status || 400);
+    }
+};
 
 export const index = async (req: Request, res: Response) => {
     try {

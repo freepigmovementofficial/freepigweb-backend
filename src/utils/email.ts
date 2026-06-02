@@ -1,8 +1,12 @@
-import resend from "../config/mailer";
+import transporter from "../config/mailer";
 
-export const sendOTPEmail = async (email: string, otp: string, name: string) => {
-  await resend.emails.send({
-    from: "onboarding@resend.dev", // pakai domain resend dulu sebelum punya custom domain
+export const sendOTPEmail = async (
+  email: string,
+  otp: string,
+  name: string,
+) => {
+  await transporter.sendMail({
+    from: `"Freepig Movement" <${process.env.GMAIL_USER}>`,
     to: email,
     subject: "Verify Your Email - Freepig Movement",
     html: `
