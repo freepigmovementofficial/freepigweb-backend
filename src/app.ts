@@ -12,32 +12,38 @@ const PORT = process.env.PORT || 5000;
 
 // Security
 app.use(helmet());
-app.use(cors({
+app.use(
+  cors({
     origin: (origin, callback) => {
-        const allowedOrigins = [
-            "http://localhost:3000",
-            "http://localhost:5173",
-            process.env.CLIENT_URL,
-        ].filter(Boolean);
+      const allowedOrigins = [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        process.env.CLIENT_URL,
+      ].filter(Boolean);
 
-        // Allow requests with no origin (mobile apps, curl, etc.)
-        if (!origin) return callback(null, true);
+      if (!origin) return callback(null, true);
 
-        if (allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error(`CORS: origin ${origin} not allowed`));
-        }
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS: origin ${origin} not allowed`));
+      }
     },
     credentials: true,
-}));
+  }),
+);
 
 // Rate limiting
-app.use(rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 menit
+app.set("trust proxy", 1);
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
     max: 100,
+    standardHeaders: true,
+    legacyHeaders: false,
     message: "Too many requests, please try again later.",
-}));
+  }),
+);
 
 // Logging
 app.use(morgan("dev"));
@@ -51,22 +57,29 @@ app.use("/api", routes);
 
 // Health check
 app.get("/", (_req, res) => {
-    res.json({ message: "FreePig API is running" });
+  res.json({ message: "FreePig API is running" });
 });
 
 // 404 handler
 app.use((_req, res) => {
-    sendError(res, "Route not found", 404);
+  sendError(res, "Route not found", 404);
 });
 
 // Global error handler
-app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+app.use(
+  (
+    err: any,
+    _req: express.Request,
+    res: express.Response,
+    _next: express.NextFunction,
+  ) => {
     console.error(err.stack);
     sendError(res, err.message || "Internal Server Error", err.status || 500);
-});
+  },
+);
 
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });
 
 export default app;
