@@ -339,7 +339,8 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
   | `categoryId` | `string` | Yes | UUID of category. |
   | `skillLevel` | `SkillLevel` | Yes | Board skill levels. |
   | `waveLevels` | `array` | Yes | List of `WaveLevel` enums (min 1). |
-
+  | `dimensions` | `array object`| Yes | Dimension of board insteed size, width, thickness, and volume|
+  
 - **Example Success Response (`201 Created`)**:
   ```json
   {
@@ -349,7 +350,15 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
       "id": "d0408544-e22a-43cf-be79-cc7cc0ebfaee",
       "name": "Freepig Fish 5.8",
       "slug": "freepig-fish-5-8",
-      "skillLevel": "INTERMEDIATE"
+      "skillLevel": "INTERMEDIATE",
+      "dimensions": [
+        {
+          "size": "6cm",
+          "width": "5m",
+          "thickness": "87mm",
+          "volume": "0.9llm"
+        }
+      ]
     }
   }
   ```
