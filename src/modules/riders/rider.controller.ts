@@ -7,6 +7,8 @@ import {
     deleteRider,
     uploadRiderImages,
     deleteRiderImage,
+    uploadRiderVideo,
+    deleteRiderVideo,
 } from "./rider.service";
 import { sendSuccess, sendError } from "../../utils/response";
 
@@ -80,4 +82,23 @@ export const destroyImage = async (req: Request, res: Response) => {
     } catch (err: any) {
         return sendError(res, err.message, err.status || 400);
     }
+};
+
+export const uploadVideo = async (req: Request, res: Response) => {
+  try {
+    if (!req.file) return sendError(res, "No video file uploaded", 400);
+    const updated = await uploadRiderVideo(req.params.id as string, req.file);
+    return sendSuccess(res, updated, "Rider video uploaded successfully");
+  } catch (err: any) {
+    return sendError(res, err.message, err.status || 400);
+  }
+};
+
+export const destroyVideo = async (req: Request, res: Response) => {
+  try {
+    const result = await deleteRiderVideo(req.params.id as string);
+    return sendSuccess(res, result, "Rider video deleted successfully");
+  } catch (err: any) {
+    return sendError(res, err.message, err.status || 400);
+  }
 };

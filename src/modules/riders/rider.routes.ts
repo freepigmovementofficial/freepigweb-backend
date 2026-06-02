@@ -7,16 +7,20 @@ import {
     destroy,
     uploadImages,
     destroyImage,
+    destroyVideo,
+    uploadVideo,
 } from "./rider.controller";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { requireAdmin } from "../../middlewares/role.middleware";
 import { validate } from "../../middlewares/validate.middleware";
-import { upload, handleUploadError } from "../../middlewares/upload.middleware";
+import { upload, handleUploadError, uploadVideo as uploadVideoMiddleware } from "../../middlewares/upload.middleware";
 import {
     createRiderSchema,
     updateRiderSchema,
     riderQuerySchema,
 } from "./rider.validation";
+
+
 
 const router = Router();
 
@@ -30,5 +34,7 @@ router.put("/:id", authenticate, requireAdmin, validate(updateRiderSchema), upda
 router.delete("/:id", authenticate, requireAdmin, destroy);
 router.post("/:id/images", authenticate, requireAdmin, upload.array("images", 10), handleUploadError, uploadImages);
 router.delete("/:id/images/:imageId", authenticate, requireAdmin, destroyImage);
+router.post("/:id/video", authenticate, requireAdmin, uploadVideoMiddleware.single("video"), handleUploadError, uploadVideo);
+router.delete("/:id/video", authenticate, requireAdmin, destroyVideo)
 
 export default router;

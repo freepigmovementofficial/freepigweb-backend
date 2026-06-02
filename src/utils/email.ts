@@ -48,7 +48,7 @@ export const sendOTPEmail = async (email: string, otp: string, name: string) => 
                 <!-- WARNING -->
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:32px;">
                   <tr>
-                    <td style="background:#1a1a1a;border-left:3px solid #555555;border-radius:4px;padding:14px 16px;">
+                    <td style="background:#1a1a1a;border-radius:4px;padding:14px 16px;">
                       <p style="color:#666666;font-size:12px;margin:0;line-height:1.6;font-family:Arial,sans-serif;">
                         If you didn't request this, you can safely ignore this email. Never share this code with anyone.
                       </p>
