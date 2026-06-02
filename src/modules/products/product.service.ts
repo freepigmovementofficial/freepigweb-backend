@@ -6,7 +6,12 @@ import slugify from "slugify";
 
 const productInclude = {
     category: true,
-    images: { orderBy: { order: "asc" as const } },
+    images: {
+        orderBy: [
+            { isPrimary: "desc" as const },
+            { order: "asc" as const },
+        ],
+    },
     dimensions: true,
     reviews: {
         include: { user: { omit: { password: true } } },
@@ -229,6 +234,35 @@ export const deleteProductImage = async (imageId: string) => {
 
     await prisma.productImage.delete({ where: { id: imageId } });
     return { message: "Image deleted successfully" };
+};
+
+export const setProductPrimaryImage = async (productId: string, imageId: string) => {
+    const product = await prisma.product.findUnique({ where: { id: productId } });
+    if (!product) throw new Error("Product not found");
+
+    const image = await prisma.productImage.findUnique({ where: { id: imageId } });
+    if (!image || image.productId !== productId) {
+        throw new Error("Image not found or does not belong to this product");
+    }
+
+    await prisma.$transaction([
+        prisma.productImage.updateMany({
+            where: { productId, id: { not: imageId } },
+            data: { isPrimary: false },
+        }),
+        prisma.productImage.update({
+            where: { id: imageId },
+            data: { isPrimary: true },
+        }),
+    ]);
+
+    return prisma.productImage.findMany({
+        where: { productId },
+        orderBy: [
+            { isPrimary: "desc" },
+            { order: "asc" },
+        ],
+    });
 };
 
 // Manage Dimension

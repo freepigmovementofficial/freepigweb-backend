@@ -7,6 +7,7 @@ import {
     deleteProduct,
     uploadProductImages,
     deleteProductImage,
+    setProductPrimaryImage,
     addProductDimension,
     deleteProductDimension,
 } from "./product.service";
@@ -81,6 +82,15 @@ export const destroyImage = async (req: Request, res: Response) => {
     try {
         const result = await deleteProductImage(req.params.imageId as string);
         return sendSuccess(res, result, "Image deleted successfully");
+    } catch (err: any) {
+        return sendError(res, err.message, 400);
+    }
+};
+
+export const setPrimaryImage = async (req: Request, res: Response) => {
+    try {
+        const result = await setProductPrimaryImage(req.params.id as string, req.params.imageId as string);
+        return sendSuccess(res, result, "Image set as primary successfully");
     } catch (err: any) {
         return sendError(res, err.message, 400);
     }

@@ -400,7 +400,42 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 
 ---
 
-### 2.9 Add Product Dimension (Admin Only)
+### 2.9 Set Product Primary Image (Admin Only)
+- **Method & Path**: `PATCH /products/:id/images/:imageId/primary`
+- **Description**: Designates a specific product image as the primary (main) photo. All other images of the product will have their primary flag cleared.
+- **Authentication**: `ADMIN`
+- **Parameters**:
+  - `id` (Path): Product UUID.
+  - `imageId` (Path): ProductImage UUID.
+- **Example Success Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Image set as primary successfully",
+    "data": [
+      {
+        "id": "cdfe6fd7-67b3-4612-8680-8d7ae5e6ecc2",
+        "url": "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780129953/surf-store/products/claim-claim-%281%29.jpg",
+        "type": "DECK",
+        "order": 1,
+        "isPrimary": true,
+        "productId": "ec7b6d53-06a8-4450-a6b7-901ab5c6225b"
+      },
+      {
+        "id": "0a4fa756-0245-40c3-85e6-2e9365282954",
+        "url": "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780129950/surf-store/products/claim-claim-logo.jpg",
+        "type": "LOGO",
+        "order": 0,
+        "isPrimary": false,
+        "productId": "ec7b6d53-06a8-4450-a6b7-901ab5c6225b"
+      }
+    ]
+  }
+  ```
+
+---
+
+### 2.10 Add Product Dimension (Admin Only)
 - **Method & Path**: `POST /products/:id/dimensions`
 - **Description**: Creates specific size variation matrices for a surfboard.
 - **Authentication**: `ADMIN`
@@ -412,7 +447,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 
 ---
 
-### 2.10 Delete Product Dimension (Admin Only)
+### 2.11 Delete Product Dimension (Admin Only)
 - **Method & Path**: `DELETE /products/:id/dimensions/:dimensionId`
 - **Description**: Deletes a size variant.
 - **Authentication**: `ADMIN`
@@ -572,6 +607,59 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 - **Method & Path**: `DELETE /riders/:id/images/:imageId`
 - **Description**: Deletes a rider image record and purges the file from Cloudinary.
 - **Authentication**: `ADMIN`
+
+---
+
+### 5.8 Upload Rider Video (Admin Only)
+- **Method & Path**: `POST /riders/:id/video`
+- **Description**: Uploads a single video profile for the rider to Cloudinary. Supports formats like `mp4`, `mov`, `webm` (up to 50MB). Automatically deletes the previous video file from Cloudinary if one exists.
+- **Authentication**: `ADMIN`
+- **Request Headers**: `Content-Type: multipart/form-data`
+- **Request Body**:
+  - `video` (File): Binary video file stream.
+- **Example Success Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Rider video uploaded successfully",
+    "data": {
+      "id": "5cb19e2f-e8b9-450a-8bf1-2292f7c00e12",
+      "name": "Jane Doe",
+      "location": "Bali, Indonesia",
+      "bio": "Professional surfer from Bali with 10+ years experience.",
+      "videoUrl": "https://res.cloudinary.com/dlkjeffiv/video/upload/v1780129953/surf-store/riders/jane-doe/video.mp4",
+      "isActive": true,
+      "createdAt": "2026-06-01T04:20:00.000Z",
+      "updatedAt": "2026-06-02T09:03:00.000Z",
+      "images": []
+    }
+  }
+  ```
+
+---
+
+### 5.9 Delete Rider Video (Admin Only)
+- **Method & Path**: `DELETE /riders/:id/video`
+- **Description**: Detaches the video URL and deletes the video file from Cloudinary storage.
+- **Authentication**: `ADMIN`
+- **Example Success Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Rider video deleted successfully",
+    "data": {
+      "id": "5cb19e2f-e8b9-450a-8bf1-2292f7c00e12",
+      "name": "Jane Doe",
+      "location": "Bali, Indonesia",
+      "bio": "Professional surfer from Bali with 10+ years experience.",
+      "videoUrl": null,
+      "isActive": true,
+      "createdAt": "2026-06-01T04:20:00.000Z",
+      "updatedAt": "2026-06-02T09:03:00.000Z",
+      "images": []
+    }
+  }
+  ```
 
 ---
 

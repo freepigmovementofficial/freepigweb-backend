@@ -7,6 +7,7 @@ import {
     destroy,
     uploadImages,
     destroyImage,
+    setPrimaryImage,
     addDimension,
     destroyDimension,
 } from "./product.controller";
@@ -35,6 +36,7 @@ router.put("/:id", authenticate, requireAdmin, validate(updateProductSchema), up
 router.delete("/:id", authenticate, requireAdmin, destroy);
 router.post("/:id/images", authenticate, requireAdmin, upload.array("images", 10), handleUploadError, uploadImages);
 router.delete("/:id/images/:imageId", authenticate, requireAdmin, destroyImage);
+router.patch("/:id/images/:imageId/primary", authenticate, requireAdmin, setPrimaryImage);
 
 router.post("/:id/dimensions", authenticate, requireAdmin, addDimension);
 router.delete("/:id/dimensions/:dimensionId", authenticate, requireAdmin, destroyDimension);
