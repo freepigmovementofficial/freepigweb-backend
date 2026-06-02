@@ -8,7 +8,7 @@ export const sendOTPEmail = async (email: string, otp: string, name: string) => 
   ).join("");
 
   await resend.emails.send({
-    from: "Freepig Movement <noreply@freepigmovement.com>",
+    from: "Freepig Movement <onboarding@resend.dev>",
     to: email,
     subject: "Verify your email – Freepig Movement",
     html: `
