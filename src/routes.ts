@@ -7,6 +7,7 @@ import riderRoutes from "./modules/riders/rider.routes";
 import customOrderRoutes from "./modules/custom-orders/custom-order.routes";
 import adminRoutes from "./modules/admin/admin.routes";
 import newReleaseRoutes from "./modules/new-releases/new-release.routes";
+import featuredRoutes from "./modules/featured/featured.routes";
 // import orderRoutes from "./modules/orders/order.routes";
 
 const router = Router();
@@ -19,6 +20,7 @@ router.use("/riders", riderRoutes);
 router.use("/custom-orders", customOrderRoutes);
 router.use("/admin", adminRoutes);
 router.use("/new-releases", newReleaseRoutes);
+router.use("/featured", featuredRoutes);
 // router.use("/orders", orderRoutes);
 
 export default router;

@@ -886,3 +886,286 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 - **Method & Path**: `DELETE /new-releases/:id/images/:imageId`
 - **Description**: Removes a release image and destroys its asset file on Cloudinary.
 - **Authentication**: `ADMIN`
+
+---
+
+## 9. Featured Sections Module (`/featured`)
+
+Featured Sections allow the admin to curate a highlighted collection of products displayed on the storefront. **Only one featured section can be active at any time** — activating one automatically deactivates all others.
+
+### 9.1 Get Active Featured Section (Public)
+- **Method & Path**: `GET /featured/active`
+- **Description**: Fetches the currently active featured section with its full product catalog. Products are ordered by their `order` field (ascending). Each product includes images (sorted by `isPrimary` DESC, `order` ASC), category, name, slug, skillLevel, and waveLevels.
+- **Authentication**: None
+- **Example Success Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Active featured section fetched successfully",
+    "data": {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "title": "Summer Picks 2026",
+      "isActive": true,
+      "createdAt": "2026-06-01T04:20:00.000Z",
+      "updatedAt": "2026-06-02T09:03:00.000Z",
+      "products": [
+        {
+          "id": "fp-001",
+          "order": 0,
+          "featuredSectionId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+          "productId": "d0408544-e22a-43cf-be79-cc7cc0ebfaee",
+          "product": {
+            "id": "d0408544-e22a-43cf-be79-cc7cc0ebfaee",
+            "name": "Freepig Fish 5.8",
+            "slug": "freepig-fish-5-8",
+            "skillLevel": "INTERMEDIATE",
+            "waveLevels": ["SMALL", "MEDIUM"],
+            "category": {
+              "id": "c47f7d1b-0e1c-43f1-bd1b-c744ef65cb68",
+              "name": "Fish Board",
+              "slug": "fish-board"
+            },
+            "images": [
+              {
+                "id": "40ab12f0-51c3-4d43-bb90-e5bf7e0d37e2",
+                "url": "https://res.cloudinary.com/.../img.png",
+                "order": 0,
+                "isPrimary": true,
+                "type": "DECK"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+  ```
+- **Error Response (`404`)**: Returned when no featured section is currently active.
+
+---
+
+### 9.2 List All Featured Sections (Admin Only)
+- **Method & Path**: `GET /featured`
+- **Description**: Lists all featured sections (active and inactive), ordered by creation date descending. Each section includes its associated products with full details.
+- **Authentication**: `ADMIN`
+- **Example Success Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Featured sections fetched successfully",
+    "data": [
+      {
+        "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "title": "Summer Picks 2026",
+        "isActive": true,
+        "createdAt": "2026-06-01T04:20:00.000Z",
+        "updatedAt": "2026-06-02T09:03:00.000Z",
+        "products": []
+      },
+      {
+        "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+        "title": "Best Sellers",
+        "isActive": false,
+        "createdAt": "2026-05-15T10:00:00.000Z",
+        "updatedAt": "2026-05-20T12:30:00.000Z",
+        "products": []
+      }
+    ]
+  }
+  ```
+
+---
+
+### 9.3 Create Featured Section (Admin Only)
+- **Method & Path**: `POST /featured`
+- **Description**: Creates a new featured section. The section is created with `isActive: false` by default. Products must be assigned separately.
+- **Authentication**: `ADMIN`
+- **Request Body**:
+  | Field | Type | Required | Description |
+  |-------|------|----------|-------------|
+  | `title` | `string` | Yes | Min 2 characters. Display title for the section. |
+
+- **Example Success Response (`201 Created`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Featured section created successfully",
+    "data": {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "title": "Summer Picks 2026",
+      "isActive": false,
+      "createdAt": "2026-06-01T04:20:00.000Z",
+      "updatedAt": "2026-06-01T04:20:00.000Z",
+      "products": []
+    }
+  }
+  ```
+
+---
+
+### 9.4 Update Featured Section (Admin Only)
+- **Method & Path**: `PUT /featured/:id`
+- **Description**: Updates the title of an existing featured section.
+- **Authentication**: `ADMIN`
+- **Parameters**:
+  - `id` (Path): Featured section UUID.
+- **Request Body**:
+  | Field | Type | Required | Description |
+  |-------|------|----------|-------------|
+  | `title` | `string` | Yes | Min 2 characters. Updated display title. |
+
+- **Example Success Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Featured section updated successfully",
+    "data": {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "title": "Updated Summer Picks 2026",
+      "isActive": true,
+      "createdAt": "2026-06-01T04:20:00.000Z",
+      "updatedAt": "2026-06-03T08:15:00.000Z",
+      "products": []
+    }
+  }
+  ```
+
+---
+
+### 9.5 Delete Featured Section (Admin Only)
+- **Method & Path**: `DELETE /featured/:id`
+- **Description**: Permanently deletes a featured section. All associated featured product entries are automatically removed via cascade delete.
+- **Authentication**: `ADMIN`
+- **Parameters**:
+  - `id` (Path): Featured section UUID.
+- **Example Success Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Featured section deleted successfully",
+    "data": {
+      "message": "Featured section deleted successfully"
+    }
+  }
+  ```
+
+---
+
+### 9.6 Set Featured Products (Admin Only)
+- **Method & Path**: `POST /featured/:id/products`
+- **Description**: Replaces the entire product list of a featured section. All existing featured products are removed and replaced with the new list in a single atomic transaction (`prisma.$transaction`). Products are ordered based on their position in the submitted array.
+- **Authentication**: `ADMIN`
+- **Parameters**:
+  - `id` (Path): Featured section UUID.
+- **Request Body**:
+  | Field | Type | Required | Description |
+  |-------|------|----------|-------------|
+  | `productIds` | `string[]` | Yes | Array of product UUIDs. Min 1 item. Order in the array determines display order. |
+
+- **Example Request Body**:
+  ```json
+  {
+    "productIds": [
+      "d0408544-e22a-43cf-be79-cc7cc0ebfaee",
+      "e1509655-f33b-54d0-cf90-dd8dd1fcgbff",
+      "f2610766-a44c-65e1-d0a1-ee9ee2gdhcgg"
+    ]
+  }
+  ```
+
+- **Example Success Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Featured products set successfully",
+    "data": {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "title": "Summer Picks 2026",
+      "isActive": true,
+      "products": [
+        {
+          "id": "fp-001",
+          "order": 0,
+          "productId": "d0408544-e22a-43cf-be79-cc7cc0ebfaee",
+          "product": {
+            "id": "d0408544-e22a-43cf-be79-cc7cc0ebfaee",
+            "name": "Freepig Fish 5.8",
+            "slug": "freepig-fish-5-8",
+            "images": [],
+            "category": { "id": "...", "name": "Fish Board", "slug": "fish-board" }
+          }
+        }
+      ]
+    }
+  }
+  ```
+
+- **Error Response (`400`)**: Returned when one or more `productIds` do not exist in the database.
+  ```json
+  {
+    "success": false,
+    "message": "Products not found: e1509655-f33b-54d0-cf90-dd8dd1fcgbff",
+    "errors": null
+  }
+  ```
+
+---
+
+### 9.7 Remove Product from Featured (Admin Only)
+- **Method & Path**: `DELETE /featured/:id/products/:productId`
+- **Description**: Removes a single product from a featured section without affecting other products in the list.
+- **Authentication**: `ADMIN`
+- **Parameters**:
+  - `id` (Path): Featured section UUID.
+  - `productId` (Path): Product UUID to remove.
+- **Example Success Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Product removed from featured section",
+    "data": {
+      "message": "Product removed from featured section"
+    }
+  }
+  ```
+- **Error Response (`404`)**: Returned when the product is not found in the specified featured section.
+
+---
+
+### 9.8 Toggle Featured Section Active (Admin Only)
+- **Method & Path**: `PATCH /featured/:id/toggle`
+- **Description**: Toggles the `isActive` status of a featured section. **When activating a section, all other sections are automatically set to `isActive: false`** to enforce the single-active constraint. Deactivating a section does not affect other sections.
+- **Authentication**: `ADMIN`
+- **Parameters**:
+  - `id` (Path): Featured section UUID.
+- **Example Success Response (Activated, `200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Featured section activated successfully",
+    "data": {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "title": "Summer Picks 2026",
+      "isActive": true,
+      "createdAt": "2026-06-01T04:20:00.000Z",
+      "updatedAt": "2026-06-03T14:00:00.000Z",
+      "products": []
+    }
+  }
+  ```
+- **Example Success Response (Deactivated, `200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Featured section deactivated successfully",
+    "data": {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "title": "Summer Picks 2026",
+      "isActive": false,
+      "createdAt": "2026-06-01T04:20:00.000Z",
+      "updatedAt": "2026-06-03T14:00:00.000Z",
+      "products": []
+    }
+  }
+  ```
+
