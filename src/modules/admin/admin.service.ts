@@ -13,6 +13,8 @@ export const getDashboardStats = async () => {
         totalRiders,
         totalReviews,
         avgRatingResult,
+        totalStoreReviews,
+        avgStoreRatingResult,
     ] = await Promise.all([
         prisma.product.count({
             where: { isActive: true },
@@ -31,10 +33,17 @@ export const getDashboardStats = async () => {
         prisma.review.aggregate({
             _avg: { rating: true },
         }),
+        prisma.storeReview.count(),
+        prisma.storeReview.aggregate({
+            _avg: { rating: true },
+        }),
     ]);
 
     const avg = avgRatingResult._avg.rating ?? 0;
     const averageRating = Math.round(avg * 10) / 10;
+
+    const avgStore = avgStoreRatingResult._avg.rating ?? 0;
+    const avgStoreRating = Math.round(avgStore * 10) / 10;
 
     return {
         totalProducts,
@@ -44,6 +53,8 @@ export const getDashboardStats = async () => {
         totalRiders,
         totalReviews,
         averageRating,
+        totalStoreReviews,
+        avgStoreRating,
     };
 };
 

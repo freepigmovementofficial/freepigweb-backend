@@ -66,6 +66,7 @@ model User {
   reviews      Review[]
   wishlists    Wishlist[]
   customOrders CustomOrder[]
+  storeReview  StoreReview?
 
   @@map("users")
 }
@@ -107,21 +108,21 @@ model Product {
   slug        String      @unique
   description String?     @db.Text
   productType ProductType @default(SURFBOARD) @map("product_type")
-  skillLevel  SkillLevel? @map("skill_level")  
-  waveLevels  WaveLevel[] @map("wave_levels")   
+  skillLevel  SkillLevel? @map("skill_level")
+  waveLevels  WaveLevel[] @map("wave_levels")
   isActive    Boolean     @default(true) @map("is_active")
   createdAt   DateTime    @default(now()) @map("created_at")
   updatedAt   DateTime    @updatedAt @map("updated_at")
 
-  categoryId  String   @map("category_id")
-  category    Category @relation(fields: [categoryId], references: [id])
-  
+  categoryId String   @map("category_id")
+  category   Category @relation(fields: [categoryId], references: [id])
+
   featuredSections FeaturedProduct[]
-  images      ProductImage[]
-  dimensions  ProductDimension[]
-  reviews     Review[]
-  wishlists   Wishlist[]
-  newReleases NewRelease[]
+  images           ProductImage[]
+  dimensions       ProductDimension[]
+  reviews          Review[]
+  wishlists        Wishlist[]
+  newReleases      NewRelease[]
 
   @@map("products")
 }
@@ -294,21 +295,38 @@ model FeaturedSection {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  products  FeaturedProduct[]
+  products FeaturedProduct[]
 
   @@map("featured_sections")
 }
 
 model FeaturedProduct {
-  id               String         @id @default(uuid())
-  order            Int            @default(0)
+  id    String @id @default(uuid())
+  order Int    @default(0)
 
-  featuredSectionId String        @map("featured_section_id")
+  featuredSectionId String          @map("featured_section_id")
   featuredSection   FeaturedSection @relation(fields: [featuredSectionId], references: [id], onDelete: Cascade)
 
-  productId        String         @map("product_id")
-  product          Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String  @map("product_id")
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([featuredSectionId, productId])
   @@map("featured_products")
+}
+
+// ===========================
+// Review Store
+// ===========================
+
+model StoreReview {
+  id        String   @id @default(uuid())
+  rating    Int
+  comment   String?  @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId])
+  @@map("store_reviews")
 }

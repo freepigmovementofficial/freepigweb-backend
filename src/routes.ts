@@ -8,6 +8,7 @@ import customOrderRoutes from "./modules/custom-orders/custom-order.routes";
 import adminRoutes from "./modules/admin/admin.routes";
 import newReleaseRoutes from "./modules/new-releases/new-release.routes";
 import featuredRoutes from "./modules/featured/featured.routes";
+import storeReviewRoutes from "./modules/store-reviews/store-review.routes";
 // import orderRoutes from "./modules/orders/order.routes";
 
 const router = Router();
@@ -21,6 +22,7 @@ router.use("/custom-orders", customOrderRoutes);
 router.use("/admin", adminRoutes);
 router.use("/new-releases", newReleaseRoutes);
 router.use("/featured", featuredRoutes);
+router.use("/store-reviews", storeReviewRoutes);
 // router.use("/orders", orderRoutes);
 
 export default router;

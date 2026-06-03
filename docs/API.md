@@ -725,7 +725,9 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
       "pendingCustomOrders": 12,
       "totalRiders": 8,
       "totalReviews": 454,
-      "averageRating": 4.6
+      "averageRating": 4.6,
+      "totalStoreReviews": 20,
+      "avgStoreRating": 4.5
     }
   }
   ```
@@ -1168,4 +1170,156 @@ Featured Sections allow the admin to curate a highlighted collection of products
     }
   }
   ```
+
+---
+
+## 10. Store Reviews Module (`/store-reviews`)
+
+### 10.1 List Store Reviews (Public)
+- **Method & Path**: `GET /store-reviews`
+- **Description**: Gets all reviews submitted for the surf store. Returns paginated results, the average store rating (`avgRating`), total review count (`totalReviews`), and a flag (`hasReviewed`) indicating if the requesting authenticated user has already reviewed the store.
+- **Authentication**: None (Optional Bearer token is parsed from headers to compute `hasReviewed`)
+- **Query Parameters**:
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | `page` | `string` | No | Page number (default: `1`). |
+  | `limit` | `string` | No | Limit per page (default: `10`). |
+
+- **Example Success Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Store reviews fetched successfully",
+    "data": {
+      "avgRating": 4.5,
+      "totalReviews": 20,
+      "hasReviewed": true,
+      "reviews": [
+        {
+          "id": "e2cd7d9b-d7d8-4f8e-a9ff-ef78cb0eb52e",
+          "rating": 5,
+          "comment": "Best surf store ever!",
+          "createdAt": "2026-06-03T10:30:00.000Z",
+          "userId": "a90bfa38-6625-4c07-ba91-0309e3e78b7b",
+          "user": {
+            "id": "a90bfa38-6625-4c07-ba91-0309e3e78b7b",
+            "name": "Jane Doe",
+            "email": "user@example.com",
+            "role": "USER",
+            "createdAt": "2026-06-01T04:20:00.000Z"
+          }
+        }
+      ],
+      "meta": {
+        "total": 20,
+        "page": 1,
+        "limit": 10,
+        "totalPages": 2,
+        "hasNextPage": true,
+        "hasPrevPage": false
+      }
+    }
+  }
+  ```
+
+---
+
+### 10.2 Create Store Review
+- **Method & Path**: `POST /store-reviews`
+- **Description**: Submits a review for the store. A user can only review the store **once**.
+- **Authentication**: `USER` or `ADMIN`
+- **Request Body**:
+  | Field | Type | Required | Description |
+  |-------|------|----------|-------------|
+  | `rating` | `number` | Yes | Integer between `1` and `5`. |
+  | `comment` | `string` | No | Feedback description. |
+
+- **Example Success Response (`201 Created`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Store review created successfully",
+    "data": {
+      "id": "e2cd7d9b-d7d8-4f8e-a9ff-ef78cb0eb52e",
+      "rating": 5,
+      "comment": "Excellent customer service!",
+      "createdAt": "2026-06-03T10:31:00.000Z",
+      "userId": "a90bfa38-6625-4c07-ba91-0309e3e78b7b",
+      "user": {
+        "id": "a90bfa38-6625-4c07-ba91-0309e3e78b7b",
+        "name": "Jane Doe",
+        "email": "user@example.com",
+        "role": "USER",
+        "createdAt": "2026-06-01T04:20:00.000Z"
+      }
+    }
+  }
+  ```
+- **Error Response (`409 Conflict`)**: Returned when the user has already submitted a store review.
+  ```json
+  {
+    "success": false,
+    "message": "You have already reviewed the store",
+    "errors": null
+  }
+  ```
+
+---
+
+### 10.3 Update Store Review
+- **Method & Path**: `PUT /store-reviews/:id`
+- **Description**: Updates the rating or comment of a user's store review. Users can only update their **own** reviews.
+- **Authentication**: `USER` or `ADMIN`
+- **Parameters**:
+  - `id` (Path): StoreReview UUID.
+- **Request Body**:
+  | Field | Type | Required | Description |
+  |-------|------|----------|-------------|
+  | `rating` | `number` | No | Integer between `1` and `5`. |
+  | `comment` | `string` | No | Feedback description. |
+
+- **Example Success Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Store review updated successfully",
+    "data": {
+      "id": "e2cd7d9b-d7d8-4f8e-a9ff-ef78cb0eb52e",
+      "rating": 4,
+      "comment": "Updated feedback comment.",
+      "createdAt": "2026-06-03T10:31:00.000Z",
+      "userId": "a90bfa38-6625-4c07-ba91-0309e3e78b7b",
+      "user": {
+        "id": "a90bfa38-6625-4c07-ba91-0309e3e78b7b",
+        "name": "Jane Doe",
+        "email": "user@example.com",
+        "role": "USER",
+        "createdAt": "2026-06-01T04:20:00.000Z"
+      }
+    }
+  }
+  ```
+- **Error Response (`403 Forbidden`)**: Returned when trying to edit another user's review.
+
+---
+
+### 10.4 Delete Store Review
+- **Method & Path**: `DELETE /store-reviews/:id`
+- **Description**: Deletes a store review. Users can only delete their **own** store reviews; Admins can delete any store review.
+- **Authentication**: `USER` or `ADMIN`
+- **Parameters**:
+  - `id` (Path): StoreReview UUID.
+
+- **Example Success Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Store review deleted successfully",
+    "data": {
+      "message": "Store review deleted successfully"
+    }
+  }
+  ```
+- **Error Response (`403 Forbidden`)**: Returned when trying to delete another user's review without Admin rights.
+
 
