@@ -9,13 +9,21 @@ async function main() {
     // ========================
     // CATEGORIES
     // ========================
-    const categoryData = [
-        { name: "Performance", slug: "performance" },
-        { name: "Hybrid/Fishy", slug: "hybrid-fishy" },
-        { name: "Longboard", slug: "longboard" },
-        { name: "Funboard", slug: "funboard" },
-        { name: "Twin Fin", slug: "twin-fin" },
-    ];
+const categoryData = [
+  // Surfboard categories (sudah ada)
+  { name: "Performance", slug: "performance" },
+  { name: "Hybrid/Fishy", slug: "hybrid-fishy" },
+  { name: "Longboard", slug: "longboard" },
+  { name: "Funboard", slug: "funboard" },
+  { name: "Twin Fin", slug: "twin-fin" },
+
+  // Accessory categories (baru)
+  { name: "Traction Pad", slug: "traction-pad" },
+  { name: "Leash", slug: "leash" },
+  { name: "Fins", slug: "fins" },
+  { name: "Board Bag", slug: "board-bag" },
+  { name: "Sock", slug: "sock" },
+];
 
     const categories: Record<string, string> = {};
     for (const cat of categoryData) {

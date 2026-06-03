@@ -1,17 +1,12 @@
 import prisma from "../../config/database";
 import cloudinary from "../../config/cloudinary";
 import { getPagination, getPaginationMeta } from "../../utils/pagination";
-import { SkillLevel, WaveLevel, ImageType } from "@prisma/client";
+import { SkillLevel, WaveLevel, ImageType, ProductType } from "@prisma/client";
 import slugify from "slugify";
 
 const productInclude = {
     category: true,
-    images: {
-        orderBy: [
-            { isPrimary: "desc" as const },
-            { order: "asc" as const },
-        ],
-    },
+    images: { orderBy: { order: "asc" as const } },
     dimensions: true,
     reviews: {
         include: { user: { omit: { password: true } } },
@@ -37,6 +32,7 @@ export const getProducts = async (query: {
     categoryId?: string;
     skillLevel?: SkillLevel;
     waveLevel?: WaveLevel;
+    productType?: ProductType;
 }) => {
     const page = parseInt(query.page || "1");
     const limit = parseInt(query.limit || "12");
@@ -44,18 +40,11 @@ export const getProducts = async (query: {
 
     const where: any = { isActive: true };
 
-    if (query.search) {
-        where.name = { contains: query.search, mode: "insensitive" };
-    }
-    if (query.categoryId) {
-        where.categoryId = query.categoryId;
-    }
-    if (query.skillLevel) {
-        where.skillLevel = query.skillLevel;
-    }
-    if (query.waveLevel) {
-        where.waveLevels = { has: query.waveLevel };
-    }
+    if (query.search) where.name = { contains: query.search, mode: "insensitive" };
+    if (query.categoryId) where.categoryId = query.categoryId;
+    if (query.skillLevel) where.skillLevel = query.skillLevel;
+    if (query.waveLevel) where.waveLevels = { has: query.waveLevel };
+    if (query.productType) where.productType = query.productType;
 
     const [products, total] = await Promise.all([
         prisma.product.findMany({
@@ -93,9 +82,10 @@ export const getProductBySlug = async (slug: string) => {
 export const createProduct = async (data: {
     name: string;
     description?: string;
+    productType?: ProductType;
     categoryId: string;
-    skillLevel: SkillLevel;
-    waveLevels: WaveLevel[];
+    skillLevel?: SkillLevel;
+    waveLevels?: WaveLevel[];
     dimensions?: {
         size: string;
         width: string;
@@ -109,16 +99,17 @@ export const createProduct = async (data: {
     if (existingProduct) throw new Error("Product with this name already exists");
 
     const product = await prisma.product.create({
-        data: {
-            name: data.name,
-            slug,
-            description: data.description,
-            categoryId: data.categoryId,
-            skillLevel: data.skillLevel,
-            waveLevels: data.waveLevels,
-            dimensions: data.dimensions ? { create: data.dimensions } : undefined,
-        },
-        include: productInclude,
+         data: {
+         name: data.name,
+         slug,
+         description: data.description,
+         productType: data.productType || "SURFBOARD",
+         categoryId: data.categoryId,
+         skillLevel: data.skillLevel || null,
+         waveLevels: data.waveLevels ? { set: data.waveLevels } : { set: [] },
+         dimensions: data.dimensions ? { create: data.dimensions } : undefined,
+     },
+    include: productInclude,
     });
 
     return product;
@@ -183,7 +174,6 @@ export const uploadProductImages = async (
     const product = await prisma.product.findUnique({ where: { id: productId } });
     if (!product) throw new Error("Product not found");
 
-    // Ambil order terakhir
     const lastImage = await prisma.productImage.findFirst({
         where: { productId },
         orderBy: { order: "desc" },
@@ -237,36 +227,34 @@ export const deleteProductImage = async (imageId: string) => {
 };
 
 export const setProductPrimaryImage = async (productId: string, imageId: string) => {
-    const product = await prisma.product.findUnique({ where: { id: productId } });
-    if (!product) throw new Error("Product not found");
+  const image = await prisma.productImage.findUnique({
+    where: { id: imageId },
+  });
 
-    const image = await prisma.productImage.findUnique({ where: { id: imageId } });
-    if (!image || image.productId !== productId) {
-        throw new Error("Image not found or does not belong to this product");
-    }
+  if (!image) throw new Error("Image not found");
 
-    await prisma.$transaction([
-        prisma.productImage.updateMany({
-            where: { productId, id: { not: imageId } },
-            data: { isPrimary: false },
-        }),
-        prisma.productImage.update({
-            where: { id: imageId },
-            data: { isPrimary: true },
-        }),
-    ]);
+  if (image.productId !== productId) {
+    throw new Error("Image does not belong to this product");
+  }
 
-    return prisma.productImage.findMany({
-        where: { productId },
-        orderBy: [
-            { isPrimary: "desc" },
-            { order: "asc" },
-        ],
-    });
+  await prisma.$transaction([
+    prisma.productImage.updateMany({
+      where: { productId },
+      data: { isPrimary: false },
+    }),
+    prisma.productImage.update({
+      where: { id: imageId },
+      data: { isPrimary: true },
+    }),
+  ]);
+
+  return prisma.product.findUnique({
+    where: { id: productId },
+    include: productInclude,
+  });
 };
 
 // Manage Dimension
-
 export const addProductDimension = async (
     productId: string,
     data: { size: string; width: string; thickness: string; volume?: string }

@@ -1,42 +1,46 @@
 import { z } from "zod";
 
-const SkillLevelEnum = z.enum(["GROMS", "BEGINNER", "INTERMEDIATE", "ADVANCED"]);
-const WaveLevelEnum = z.enum(["SMALL", "MEDIUM", "BIG"]);
+const SkillLevelEnum = z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED", "GROMS"]);
+const WaveLevelEnum = z.enum(["SMALL", "MEDIUM", "BIG", "WAVE_POOL"]);
+const ProductTypeEnum = z.enum(["SURFBOARD", "ACCESSORY"]);
 
 export const createProductSchema = z.object({
-    body: z.object({
-        name: z.string().min(2, "Name must be at least 2 characters"),
-        description: z.string().optional(),
-        categoryId: z.string().uuid("Invalid category ID"),
-        skillLevel: SkillLevelEnum,
-        waveLevels: z.array(WaveLevelEnum).min(1, "At least one wave level required"),
-        dimensions: z.array(z.object({
-            size: z.string(),
-            width: z.string(),
-            thickness: z.string(),
-            volume: z.string().optional(),
-        })).optional(),
-    }),
+  body: z.object({
+    name: z.string().min(2, "Name must be at least 2 characters"),
+    description: z.string().optional(),
+    productType: ProductTypeEnum.default("SURFBOARD"),
+    categoryId: z.string().uuid("Invalid category ID"),
+    skillLevel: SkillLevelEnum.optional(),
+    waveLevels: z.array(WaveLevelEnum).optional(),
+    dimensions: z.array(z.object({
+      size: z.string(),
+      width: z.string(),
+      thickness: z.string(),
+      volume: z.string().optional(),
+    })).optional(),
+  }),
 });
 
 export const updateProductSchema = z.object({
-    body: z.object({
-        name: z.string().min(2).optional(),
-        description: z.string().optional(),
-        categoryId: z.string().uuid().optional(),
-        skillLevel: SkillLevelEnum.optional(),
-        waveLevels: z.array(WaveLevelEnum).optional(),
-        isActive: z.boolean().optional(),
-    }),
+  body: z.object({
+    name: z.string().min(2).optional(),
+    description: z.string().optional(),
+    productType: ProductTypeEnum.optional(),
+    categoryId: z.string().uuid().optional(),
+    skillLevel: SkillLevelEnum.optional(),
+    waveLevels: z.array(WaveLevelEnum).optional(),
+    isActive: z.boolean().optional(),
+  }),
 });
 
 export const productQuerySchema = z.object({
-    query: z.object({
-        page: z.string().optional(),
-        limit: z.string().optional(),
-        search: z.string().optional(),
-        categoryId: z.string().optional(),
-        skillLevel: SkillLevelEnum.optional(),
-        waveLevel: WaveLevelEnum.optional(),
-    }),
+  query: z.object({
+    page: z.string().optional(),
+    limit: z.string().optional(),
+    search: z.string().optional(),
+    categoryId: z.string().optional(),
+    skillLevel: SkillLevelEnum.optional(),
+    waveLevel: WaveLevelEnum.optional(),
+    productType: ProductTypeEnum.optional(),
+  }),
 });

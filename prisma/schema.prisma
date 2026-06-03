@@ -45,6 +45,11 @@ enum CustomOrderStatus {
   CANCELLED
 }
 
+enum ProductType {
+  SURFBOARD
+  ACCESSORY
+}
+
 // ========================
 // USER
 // ========================
@@ -101,14 +106,15 @@ model Product {
   name        String
   slug        String      @unique
   description String?     @db.Text
-  skillLevel  SkillLevel  @map("skill_level")
-  waveLevels  WaveLevel[] @map("wave_levels")
+  productType ProductType @default(SURFBOARD) @map("product_type")
+  skillLevel  SkillLevel? @map("skill_level")  
+  waveLevels  WaveLevel[] @map("wave_levels")   
   isActive    Boolean     @default(true) @map("is_active")
   createdAt   DateTime    @default(now()) @map("created_at")
   updatedAt   DateTime    @updatedAt @map("updated_at")
 
-  categoryId String   @map("category_id")
-  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId  String   @map("category_id")
+  category    Category @relation(fields: [categoryId], references: [id])
 
   images      ProductImage[]
   dimensions  ProductDimension[]
