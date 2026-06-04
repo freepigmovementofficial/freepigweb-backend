@@ -99,17 +99,17 @@ export const createProduct = async (data: {
     if (existingProduct) throw new Error("Product with this name already exists");
 
     const product = await prisma.product.create({
-         data: {
-         name: data.name,
-         slug,
-         description: data.description,
-         productType: data.productType || "SURFBOARD",
-         categoryId: data.categoryId,
-         skillLevel: data.skillLevel || null,
-         waveLevels: data.waveLevels ? { set: data.waveLevels } : { set: [] },
-         dimensions: data.dimensions ? { create: data.dimensions } : undefined,
-     },
-    include: productInclude,
+        data: {
+            name: data.name,
+            slug,
+            description: data.description,
+            productType: data.productType || "SURFBOARD",
+            categoryId: data.categoryId,
+            skillLevel: data.skillLevel || null,
+            waveLevels: data.waveLevels ? { set: data.waveLevels } : { set: [] },
+            dimensions: data.dimensions ? { create: data.dimensions } : undefined,
+        },
+        include: productInclude,
     });
 
     return product;
@@ -120,6 +120,7 @@ export const updateProduct = async (
     data: {
         name?: string;
         description?: string;
+        videoUrl?: string | null;
         categoryId?: string;
         skillLevel?: SkillLevel;
         waveLevels?: WaveLevel[];
@@ -140,6 +141,7 @@ export const updateProduct = async (
     if (data.skillLevel) updateData.skillLevel = data.skillLevel;
     if (data.waveLevels) updateData.waveLevels = data.waveLevels;
     if (data.isActive !== undefined) updateData.isActive = data.isActive;
+    if (data.videoUrl !== undefined) updateData.videoUrl = data.videoUrl;
 
     const updated = await prisma.product.update({
         where: { id },
@@ -224,34 +226,34 @@ export const deleteProductImage = async (imageId: string) => {
 
     await prisma.productImage.delete({ where: { id: imageId } });
     return { message: "Image deleted successfully" };
-};  
+};
 
 export const setProductPrimaryImage = async (productId: string, imageId: string) => {
-  const image = await prisma.productImage.findUnique({
-    where: { id: imageId },
-  });
+    const image = await prisma.productImage.findUnique({
+        where: { id: imageId },
+    });
 
-  if (!image) throw new Error("Image not found");  
+    if (!image) throw new Error("Image not found");
 
-  if (image.productId !== productId) {
-    throw new Error("Image does not belong to this product");
-  }
+    if (image.productId !== productId) {
+        throw new Error("Image does not belong to this product");
+    }
 
-  await prisma.$transaction([
-    prisma.productImage.updateMany({
-      where: { productId },
-      data: { isPrimary: false },
-    }),
-    prisma.productImage.update({
-      where: { id: imageId },
-      data: { isPrimary: true },
-    }),
-  ]);
+    await prisma.$transaction([
+        prisma.productImage.updateMany({
+            where: { productId },
+            data: { isPrimary: false },
+        }),
+        prisma.productImage.update({
+            where: { id: imageId },
+            data: { isPrimary: true },
+        }),
+    ]);
 
-  return prisma.product.findUnique({
-    where: { id: productId },
-    include: productInclude,
-  });
+    return prisma.product.findUnique({
+        where: { id: productId },
+        include: productInclude,
+    });
 };
 
 // Manage Dimension

@@ -26,6 +26,7 @@ export const updateProductSchema = z.object({
     name: z.string().min(2).optional(),
     description: z.string().optional(),
     productType: ProductTypeEnum.optional(),
+    videoUrl: z.string().url().optional().nullable(),
     categoryId: z.string().uuid().optional(),
     skillLevel: SkillLevelEnum.optional(),
     waveLevels: z.array(WaveLevelEnum).optional(),

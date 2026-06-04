@@ -16,6 +16,7 @@ fosil.json
 
 # Migration results
 scripts/migration-results.json
+generated
 
 # Logs
 logs/

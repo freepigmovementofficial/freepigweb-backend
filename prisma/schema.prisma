@@ -107,6 +107,7 @@ model Product {
   name        String
   slug        String      @unique
   description String?     @db.Text
+  videoUrl    String?     @map("video_url")
   productType ProductType @default(SURFBOARD) @map("product_type")
   skillLevel  SkillLevel? @map("skill_level")
   waveLevels  WaveLevel[] @map("wave_levels")
@@ -330,7 +331,6 @@ model StoreReview {
   @@unique([userId])
   @@map("store_reviews")
 }
-
 
 // ==========================
 // Gallery
