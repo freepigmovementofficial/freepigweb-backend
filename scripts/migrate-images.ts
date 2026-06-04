@@ -26,7 +26,6 @@ const drive = google.drive({
 
 const FOLDER_ID = "1W5yrVao1hJTxBCCudIJplHE6-5eCm6Ji";
 
-// Download file by Drive file ID
 async function downloadFile(fileId: string, dest: string): Promise<void> {
     const authClient = await auth.getClient();
     const token = await authClient.getAccessToken();

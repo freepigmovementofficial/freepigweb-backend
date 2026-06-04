@@ -15,7 +15,6 @@ export const validate =
             } catch (err) {
                 if (err instanceof ZodError) {
                     const zodErr = err as ZodError;
-
                     const errors = zodErr.issues.map((e) => ({
                         field: e.path.join("."),
                         message: e.message,

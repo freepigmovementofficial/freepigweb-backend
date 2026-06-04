@@ -141,4 +141,4 @@ Inside `package.json`, you have these scripts ready to use:
 
 ---
 
-*Made with ❤️ by the Freepig Movement Development Team.*
+*Made with ❤️ by Ahmad Syangkan Syarip.*

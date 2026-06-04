@@ -107,7 +107,6 @@ export const uploadNewReleaseVideo = async (
     const existing = await prisma.newRelease.findUnique({ where: { id } });
     if (!existing) throw { status: 404, message: "New release not found" };
 
-    // Hapus video lama dari Cloudinary kalau ada
     if (existing.videoUrl && existing.videoUrl.includes("cloudinary.com")) {
         try {
             const publicId = existing.videoUrl

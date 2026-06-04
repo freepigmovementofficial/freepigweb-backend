@@ -57,7 +57,7 @@ export const updateFeaturedSection = async (id: string, data: { title: string })
         data: { title: data.title },
         include: featuredSectionInclude,
     });
-
+  
     return updated;
 };
 

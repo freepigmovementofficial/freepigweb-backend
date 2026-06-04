@@ -15,19 +15,17 @@ export const registerUser = async (
         throw new Error("Email already registered");
     }
 
-    // Hapus OTP lama kalau ada
     await prisma.otp.deleteMany({ where: { email } });
 
     const otp = generateOTP();
     const expiresAt = getOTPExpiry();
 
-    // Simpan OTP + data user sementara (password di-hash dulu)
     const hashedPassword = await bcrypt.hash(password, 12);
 
     await prisma.otp.create({
         data: {
             email,
-            code: `${otp}|${name}|${hashedPassword}`, // simpan data sementara
+            code: `${otp}|${name}|${hashedPassword}`, 
             expiresAt,
         },
     });
@@ -58,13 +56,11 @@ export const verifyOTP = async (email: string, code: string) => {
         throw new Error("Invalid OTP.");
     }
 
-    // Buat user setelah OTP valid
     const user = await prisma.user.create({
         data: { name, email, password: hashedPassword },
         omit: { password: true },
     });
 
-    // Hapus OTP setelah berhasil
     await prisma.otp.deleteMany({ where: { email } });
 
     const token = jwt.sign({ id: user.id }, jwtConfig.secret, {

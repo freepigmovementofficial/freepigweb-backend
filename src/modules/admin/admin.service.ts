@@ -91,7 +91,7 @@ export const getAllUsers = async (query: {
             skip,
         }),
         prisma.user.count({ where }),
-    ]);
+    ]);    
 
     return {
         users,

@@ -7,7 +7,6 @@ import {
 } from "./review.service";
 import { sendSuccess, sendError } from "../../utils/response";
 
-
 export const index = async (req: Request, res: Response) => {
     try {
         const data = await getProductReviews(

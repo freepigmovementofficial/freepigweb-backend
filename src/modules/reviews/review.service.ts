@@ -106,42 +106,6 @@ export const updateReview = async (
     return updated;
 };
 
-export const getLatestReviews = async (
-    query: { page?: string; limit?: string }
-) => {
-    const page = parseInt(query.page || "1");
-    const limit = parseInt(query.limit || "10");
-    const { take, skip } = getPagination(page, limit);
-
-    const [reviews, total] = await Promise.all([
-        prisma.review.findMany({
-            include: {
-                user: { omit: { password: true } },
-                product: {
-                    select: { id: true, name: true, slug: true },
-                },
-            },
-            orderBy: { createdAt: "desc" },
-            take,
-            skip,
-        }),
-        prisma.review.count(),
-    ]);
-
-    const avgResult = await prisma.review.aggregate({
-        _avg: { rating: true },
-    });
-
-    return {
-        avgRating: avgResult._avg.rating
-            ? Math.round(avgResult._avg.rating * 10) / 10
-            : 0,
-        totalReviews: total,
-        reviews,
-        meta: getPaginationMeta(total, page, limit),
-    };
-};
-
 export const deleteReview = async (
     reviewId: string,
     userId: string,
