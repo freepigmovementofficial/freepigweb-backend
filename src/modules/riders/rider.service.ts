@@ -158,7 +158,6 @@ export const uploadRiderVideo = async (
   const rider = await prisma.rider.findUnique({ where: { id } });
   if (!rider) throw { status: 404, message: "Rider not found" };
 
-  // Hapus video lama dari Cloudinary kalau ada
   if (rider.videoUrl && rider.videoUrl.includes("cloudinary.com")) {
     try {
       const publicId = rider.videoUrl

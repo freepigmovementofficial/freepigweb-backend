@@ -224,14 +224,14 @@ export const deleteProductImage = async (imageId: string) => {
 
     await prisma.productImage.delete({ where: { id: imageId } });
     return { message: "Image deleted successfully" };
-};
+};  
 
 export const setProductPrimaryImage = async (productId: string, imageId: string) => {
   const image = await prisma.productImage.findUnique({
     where: { id: imageId },
   });
 
-  if (!image) throw new Error("Image not found");
+  if (!image) throw new Error("Image not found");  
 
   if (image.productId !== productId) {
     throw new Error("Image does not belong to this product");

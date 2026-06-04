@@ -6,6 +6,47 @@ const prisma = new PrismaClient();
 async function main() {
     console.log(" Seeding...\n");
 
+
+// ========================
+// GALLERY
+// ========================
+
+// Gallery
+const galleryImages = [
+  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545746/surf-store/gallery/img_6143.jpg",
+  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545751/surf-store/gallery/img_3153.jpg",
+  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545755/surf-store/gallery/img_1783.jpg",
+  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545759/surf-store/gallery/img_6667.jpg",
+  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545762/surf-store/gallery/img_9654.heic.jpg",
+  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545764/surf-store/gallery/img_9727.jpg",
+  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545767/surf-store/gallery/img_9092.jpg",
+  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545770/surf-store/gallery/img_7903.heic.jpg",
+  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545773/surf-store/gallery/img_6150.jpg",
+  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545777/surf-store/gallery/img_1772.jpg",
+  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545781/surf-store/gallery/img_1702.heic.jpg",
+  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545784/surf-store/gallery/img_8950.jpg",
+  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545786/surf-store/gallery/img_0848.jpg",
+  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545790/surf-store/gallery/img_1828.jpg",
+  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545793/surf-store/gallery/img_2677.jpg",
+  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545796/surf-store/gallery/img_7735.jpg",
+  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545799/surf-store/gallery/img_0808.jpg",
+  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545803/surf-store/gallery/img_5229.jpg",
+  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545806/surf-store/gallery/img_6149.jpg",
+  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545810/surf-store/gallery/img_5942.jpg",
+  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545813/surf-store/gallery/img_5941.jpg",
+  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545815/surf-store/gallery/img_5945.jpg",
+];
+
+await prisma.gallery.deleteMany();
+await prisma.gallery.createMany({
+  data: galleryImages.map((url, index) => ({
+    url,
+    order: index,
+  })),
+});
+console.log("✅ Gallery seeded");
+
+
     // ========================
     // CATEGORIES
     // ========================

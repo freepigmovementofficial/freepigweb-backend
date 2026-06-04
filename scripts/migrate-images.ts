@@ -24,7 +24,7 @@ const drive = google.drive({
     auth,
 });
 
-const FOLDER_ID = "1W5yrVao1hJTxBCCudIJplHE6-5eCm6Ji";
+const FOLDER_ID = "10yxHBRlBOtdGNubE0UgMu9cr5mTG1qoA";
 
 async function downloadFile(fileId: string, dest: string): Promise<void> {
     const authClient = await auth.getClient();
@@ -86,7 +86,7 @@ async function getFilesInFolder(folderId: string) {
 async function uploadToCloudinary(filePath: string, publicId: string): Promise<string> {
     const result = await cloudinary.v2.uploader.upload(filePath, {
         public_id: publicId,
-        folder: "surf-store/products",
+        folder: "surf-store/gallery",
         overwrite: true,
     });
     return result.secure_url;

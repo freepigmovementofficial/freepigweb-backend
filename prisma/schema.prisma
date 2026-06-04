@@ -330,3 +330,18 @@ model StoreReview {
   @@unique([userId])
   @@map("store_reviews")
 }
+
+
+// ==========================
+// Gallery
+// ==========================
+
+model Gallery {
+  id        String   @id @default(uuid())
+  url       String
+  caption   String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("galleries")
+}

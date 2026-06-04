@@ -1322,4 +1322,160 @@ Featured Sections allow the admin to curate a highlighted collection of products
   ```
 - **Error Response (`403 Forbidden`)**: Returned when trying to delete another user's review without Admin rights.
 
+---
+
+## 11. Gallery Module (`/gallery`)
+
+The Gallery module manages the photo gallery for the Freepig Movement storefront. Admins can upload multiple images at once, update captions, and remove photos. All images are stored on Cloudinary under the `surf-store/gallery` folder. Gallery items are ordered using an `order` field that auto-increments from the last existing entry.
+
+### 11.1 List Gallery Photos (Public)
+- **Method & Path**: `GET /gallery`
+- **Description**: Returns all gallery photos ordered by `order` ASC with pagination support.
+- **Authentication**: None
+- **Query Parameters**:
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | `page` | `string` | No | Page number (default: `1`). |
+  | `limit` | `string` | No | Limit per page (default: `12`). |
+
+- **Example Success Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Gallery fetched successfully",
+    "data": {
+      "galleries": [
+        {
+          "id": "f8a1c2d3-e4b5-6789-abcd-ef0123456789",
+          "url": "https://res.cloudinary.com/.../gallery-img1.jpg",
+          "caption": "Sunset surf session at Uluwatu",
+          "order": 0,
+          "createdAt": "2026-06-01T04:20:00.000Z"
+        },
+        {
+          "id": "a9b2c3d4-f5e6-7890-bcde-f01234567890",
+          "url": "https://res.cloudinary.com/.../gallery-img2.jpg",
+          "caption": null,
+          "order": 1,
+          "createdAt": "2026-06-01T04:20:01.000Z"
+        }
+      ],
+      "meta": {
+        "total": 2,
+        "page": 1,
+        "limit": 12,
+        "totalPages": 1,
+        "hasNextPage": false,
+        "hasPrevPage": false
+      }
+    }
+  }
+  ```
+
+---
+
+### 11.2 Upload Gallery Photos (Admin Only)
+- **Method & Path**: `POST /gallery`
+- **Description**: Uploads one or more gallery images to Cloudinary (max 20 files per request). Each uploaded image is saved to the database with an auto-incremented `order` value that continues from the highest existing order in the database (not reset to 0). Images are stored in the `surf-store/gallery` Cloudinary folder.
+- **Authentication**: `ADMIN`
+- **Request Headers**: `Content-Type: multipart/form-data`
+- **Request Body**:
+  | Field | Type | Required | Description |
+  |-------|------|----------|-------------|
+  | `images` | `File[]` | Yes | Binary image files. Supports `.jpg`, `.png`, `.webp` (Max 5MB each, up to 20 files). |
+
+- **Example Success Response (`201 Created`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Gallery uploaded successfully",
+    "data": [
+      {
+        "id": "f8a1c2d3-e4b5-6789-abcd-ef0123456789",
+        "url": "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780129953/surf-store/gallery/img1.jpg",
+        "caption": null,
+        "order": 0,
+        "createdAt": "2026-06-03T10:30:00.000Z"
+      },
+      {
+        "id": "a9b2c3d4-f5e6-7890-bcde-f01234567890",
+        "url": "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780129954/surf-store/gallery/img2.jpg",
+        "caption": null,
+        "order": 1,
+        "createdAt": "2026-06-03T10:30:01.000Z"
+      }
+    ]
+  }
+  ```
+- **Error Response (`400`)**: Returned when no image files are provided.
+  ```json
+  {
+    "success": false,
+    "message": "No images uploaded",
+    "errors": null
+  }
+  ```
+
+---
+
+### 11.3 Update Gallery Caption (Admin Only)
+- **Method & Path**: `PATCH /gallery/:id`
+- **Description**: Updates the caption of a gallery photo. Caption is optional and can be set to `null`.
+- **Authentication**: `ADMIN`
+- **Parameters**:
+  - `id` (Path): Gallery UUID.
+- **Request Body**:
+  | Field | Type | Required | Description |
+  |-------|------|----------|-------------|
+  | `caption` | `string \| null` | No | Photo caption text. Pass `null` to clear. |
+
+- **Example Success Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Gallery updated successfully",
+    "data": {
+      "id": "f8a1c2d3-e4b5-6789-abcd-ef0123456789",
+      "url": "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780129953/surf-store/gallery/img1.jpg",
+      "caption": "Morning glass at Padang Padang",
+      "order": 0,
+      "createdAt": "2026-06-03T10:30:00.000Z"
+    }
+  }
+  ```
+- **Error Response (`404`)**: Returned when the gallery photo is not found.
+  ```json
+  {
+    "success": false,
+    "message": "Gallery not found",
+    "errors": null
+  }
+  ```
+
+---
+
+### 11.4 Delete Gallery Photo (Admin Only)
+- **Method & Path**: `DELETE /gallery/:id`
+- **Description**: Deletes a gallery photo. The image file is **purged from Cloudinary first** before the database record is removed.
+- **Authentication**: `ADMIN`
+- **Parameters**:
+  - `id` (Path): Gallery UUID.
+- **Example Success Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Gallery deleted successfully",
+    "data": {
+      "message": "Gallery deleted successfully"
+    }
+  }
+  ```
+- **Error Response (`404`)**: Returned when the gallery photo is not found.
+  ```json
+  {
+    "success": false,
+    "message": "Gallery not found",
+    "errors": null
+  }
+  ```
 

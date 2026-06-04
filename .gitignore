@@ -12,6 +12,7 @@ dist/
 
 # Google Service Account (SENSITIVE!)
 service-account.json
+fosil.json
 
 # Migration results
 scripts/migration-results.json
