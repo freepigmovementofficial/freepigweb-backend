@@ -3,6 +3,7 @@ import cloudinary from "../../config/cloudinary";
 import { getPagination, getPaginationMeta } from "../../utils/pagination";
 import { SkillLevel, WaveLevel, ImageType, ProductType } from "@prisma/client";
 import slugify from "slugify";
+import { extractYoutubeId } from "../../utils/extractVideo";
 
 const productInclude = {
     category: true,
@@ -141,7 +142,15 @@ export const updateProduct = async (
     if (data.skillLevel) updateData.skillLevel = data.skillLevel;
     if (data.waveLevels) updateData.waveLevels = data.waveLevels;
     if (data.isActive !== undefined) updateData.isActive = data.isActive;
-    if (data.videoUrl !== undefined) updateData.videoUrl = data.videoUrl;
+    if (data.videoUrl !== undefined) {
+        if (data.videoUrl === null) {
+            updateData.videoUrl = null;
+        } else {
+            const videoId = extractYoutubeId(data.videoUrl);
+            if (!videoId) throw new Error("Invalid YouTube URL");
+            updateData.videoUrl = `https://www.youtube.com/embed/${videoId}`;
+        }
+    }
 
     const updated = await prisma.product.update({
         where: { id },
