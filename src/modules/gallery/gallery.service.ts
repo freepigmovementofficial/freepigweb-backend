@@ -82,11 +82,12 @@ export const deleteGallery = async (id: string) => {
     const gallery = await prisma.gallery.findUnique({ where: { id } });
     if (!gallery) throw { status: 404, message: "Gallery not found" };
 
-    // Hapus dari Cloudinary terlebih dahulu
-    const publicId = gallery.url.split("/").slice(-3).join("/").split(".")[0];
+    const urlParts = gallery.url.split("/");
+    const fileName = urlParts[urlParts.length - 1].split(".")[0];
+    const folder = urlParts.slice(-3, -1).join("/");
+    const publicId = `${folder}/${fileName}`;
     await cloudinary.uploader.destroy(publicId);
 
-    // Baru hapus dari database
     await prisma.gallery.delete({ where: { id } });
 
     return { message: "Gallery deleted successfully" };
