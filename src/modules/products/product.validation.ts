@@ -9,7 +9,7 @@ export const createProductSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters"),
     description: z.string().optional(),
     productType: ProductTypeEnum.default("SURFBOARD"),
-    categoryId: z.string().uuid("Invalid category ID"),
+    categoryId: z.string().uuid("Invalid category ID").optional(),
     skillLevel: SkillLevelEnum.optional(),
     waveLevels: z.array(WaveLevelEnum).optional(),
     dimensions: z.array(z.object({
@@ -18,6 +18,14 @@ export const createProductSchema = z.object({
       thickness: z.string(),
       volume: z.string().optional(),
     })).optional(),
+  }).refine((data) => {
+    if (data.productType === "ACCESSORY" && !data.categoryId) {
+      return false
+    }
+    return true
+  }, {
+    message: "Category is required for accessories",
+    path: ["categoryId"]
   }),
 });
 

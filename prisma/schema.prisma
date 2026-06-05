@@ -115,8 +115,8 @@ model Product {
   createdAt   DateTime    @default(now()) @map("created_at")
   updatedAt   DateTime    @updatedAt @map("updated_at")
 
-  categoryId String   @map("category_id")
-  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId String?   @map("category_id")
+  category   Category? @relation(fields: [categoryId], references: [id])
 
   featuredSections FeaturedProduct[]
   images           ProductImage[]
