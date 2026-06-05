@@ -1479,3 +1479,246 @@ The Gallery module manages the photo gallery for the Freepig Movement storefront
   }
   ```
 
+---
+
+## 12. Testimonials Module (`/testimonials`)
+
+The Testimonials module manages customer reviews/testimonials for the Freepig Movement store. All testimonials contain a customer name, review body, optional instagram handle, order sequence, active flag, and customer photo. Photos are uploaded to Cloudinary under the `surf-store/testimonials` folder.
+
+### 12.1 List Active Testimonials (Public)
+- **Method & Path**: `GET /testimonials`
+- **Description**: Returns all active testimonials (`isActive: true`) ordered by `order` ASC with pagination support.
+- **Authentication**: None
+- **Query Parameters**:
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | `page` | `string` | No | Page number (default: `1`). |
+  | `limit` | `string` | No | Limit per page (default: `12`). |
+
+- **Example Success Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Testimonials fetched successfully",
+    "data": {
+      "testimonials": [
+        {
+          "id": "e9a4f8d2-c3b5-4a1b-9e8c-5d6e7f8a9b0c",
+          "name": "John Surfer",
+          "photoUrl": "https://res.cloudinary.com/.../customer1.jpg",
+          "review": "Awesome surfboards! Excellent performance.",
+          "instagram": "john_surfer",
+          "order": 1,
+          "isActive": true,
+          "createdAt": "2026-06-05T09:00:00.000Z",
+          "updatedAt": "2026-06-05T09:00:00.000Z"
+        }
+      ],
+      "meta": {
+        "total": 1,
+        "page": 1,
+        "limit": 12,
+        "totalPages": 1,
+        "hasNextPage": false,
+        "hasPrevPage": false
+      }
+    }
+  }
+  ```
+
+---
+
+### 12.2 List All Testimonials (Admin Only)
+- **Method & Path**: `GET /testimonials/all`
+- **Description**: Returns all testimonials, including inactive ones, ordered by `order` ASC with pagination support.
+- **Authentication**: `ADMIN`
+- **Query Parameters**:
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | `page` | `string` | No | Page number (default: `1`). |
+  | `limit` | `string` | No | Limit per page (default: `12`). |
+
+- **Example Success Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "message": "All testimonials fetched successfully",
+    "data": {
+      "testimonials": [
+        {
+          "id": "e9a4f8d2-c3b5-4a1b-9e8c-5d6e7f8a9b0c",
+          "name": "John Surfer",
+          "photoUrl": "https://res.cloudinary.com/.../customer1.jpg",
+          "review": "Awesome surfboards! Excellent performance.",
+          "instagram": "john_surfer",
+          "order": 1,
+          "isActive": true,
+          "createdAt": "2026-06-05T09:00:00.000Z",
+          "updatedAt": "2026-06-05T09:00:00.000Z"
+        },
+        {
+          "id": "b3c5a7f2-1b8e-4a9d-9c8e-5f0a1b2c3d4e",
+          "name": "Jane Wave",
+          "photoUrl": null,
+          "review": "Fast shipping.",
+          "instagram": null,
+          "order": 2,
+          "isActive": false,
+          "createdAt": "2026-06-05T09:10:00.000Z",
+          "updatedAt": "2026-06-05T09:10:00.000Z"
+        }
+      ],
+      "meta": {
+        "total": 2,
+        "page": 1,
+        "limit": 12,
+        "totalPages": 1,
+        "hasNextPage": false,
+        "hasPrevPage": false
+      }
+    }
+  }
+  ```
+
+---
+
+### 12.3 Create Testimonial (Admin Only)
+- **Method & Path**: `POST /testimonials`
+- **Description**: Creates a new testimonial record.
+- **Authentication**: `ADMIN`
+- **Request Body**:
+  | Field | Type | Required | Description |
+  |-------|------|----------|-------------|
+  | `name` | `string` | Yes | Customer name. |
+  | `review` | `string` | Yes | Review feedback body text. |
+  | `instagram` | `string` | No | Instagram handle. Can be null/omitted. |
+  | `order` | `number` | No | Display sorting order (default: `0`). |
+  | `isActive` | `boolean` | No | Active status flag (default: `true`). |
+
+- **Example Success Response (`201 Created`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Testimonial created successfully",
+    "data": {
+      "id": "e9a4f8d2-c3b5-4a1b-9e8c-5d6e7f8a9b0c",
+      "name": "John Surfer",
+      "photoUrl": null,
+      "review": "Awesome surfboards! Excellent performance.",
+      "instagram": "john_surfer",
+      "order": 1,
+      "isActive": true,
+      "createdAt": "2026-06-05T09:00:00.000Z",
+      "updatedAt": "2026-06-05T09:00:00.000Z"
+    }
+  }
+  ```
+
+---
+
+### 12.4 Update Testimonial (Admin Only)
+- **Method & Path**: `PUT /testimonials/:id`
+- **Description**: Updates fields of an existing testimonial. All body fields are optional.
+- **Authentication**: `ADMIN`
+- **Parameters**:
+  - `id` (Path): Testimonial UUID.
+- **Request Body**: Same properties as create, but all optional.
+
+- **Example Success Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Testimonial updated successfully",
+    "data": {
+      "id": "e9a4f8d2-c3b5-4a1b-9e8c-5d6e7f8a9b0c",
+      "name": "John Updated",
+      "photoUrl": null,
+      "review": "Awesome surfboards! Excellent performance.",
+      "instagram": "john_surfer",
+      "order": 1,
+      "isActive": true,
+      "createdAt": "2026-06-05T09:00:00.000Z",
+      "updatedAt": "2026-06-05T09:15:00.000Z"
+    }
+  }
+  ```
+
+---
+
+### 12.5 Delete Testimonial (Admin Only)
+- **Method & Path**: `DELETE /testimonials/:id`
+- **Description**: Deletes a testimonial. The associated customer photo is **purged from Cloudinary first** (if present) before deleting the database record.
+- **Authentication**: `ADMIN`
+- **Parameters**:
+  - `id` (Path): Testimonial UUID.
+
+- **Example Success Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Testimonial deleted successfully",
+    "data": {
+      "message": "Testimonial deleted successfully"
+    }
+  }
+  ```
+
+---
+
+### 12.6 Upload Testimonial Photo (Admin Only)
+- **Method & Path**: `POST /testimonials/:id/photo`
+- **Description**: Uploads a customer profile photo to Cloudinary. Automatically deletes the previous photo from Cloudinary if one exists.
+- **Authentication**: `ADMIN`
+- **Request Headers**: `Content-Type: multipart/form-data`
+- **Request Body**:
+  | Field | Type | Required | Description |
+  |-------|------|----------|-------------|
+  | `photo` | `File` | Yes | Binary image file. Supports `.jpg`, `.png`, `.webp` (Max 5MB). |
+
+- **Example Success Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Testimonial photo uploaded successfully",
+    "data": {
+      "id": "e9a4f8d2-c3b5-4a1b-9e8c-5d6e7f8a9b0c",
+      "name": "John Surfer",
+      "photoUrl": "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780129953/surf-store/testimonials/customer1.jpg",
+      "review": "Awesome surfboards! Excellent performance.",
+      "instagram": "john_surfer",
+      "order": 1,
+      "isActive": true,
+      "createdAt": "2026-06-05T09:00:00.000Z",
+      "updatedAt": "2026-06-05T09:20:00.000Z"
+    }
+  }
+  ```
+
+---
+
+### 12.7 Toggle Testimonial Status (Admin Only)
+- **Method & Path**: `PATCH /testimonials/:id/toggle`
+- **Description**: Toggles the active status (`isActive`) of a testimonial between `true` and `false`.
+- **Authentication**: `ADMIN`
+- **Parameters**:
+  - `id` (Path): Testimonial UUID.
+
+- **Example Success Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Testimonial status toggled successfully",
+    "data": {
+      "id": "e9a4f8d2-c3b5-4a1b-9e8c-5d6e7f8a9b0c",
+      "name": "John Surfer",
+      "photoUrl": null,
+      "review": "Awesome surfboards! Excellent performance.",
+      "instagram": "john_surfer",
+      "order": 1,
+      "isActive": false,
+      "createdAt": "2026-06-05T09:00:00.000Z",
+      "updatedAt": "2026-06-05T09:25:00.000Z"
+    }
+  }
+  ```
+

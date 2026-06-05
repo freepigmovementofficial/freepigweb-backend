@@ -226,15 +226,17 @@ model CustomOrder {
 // ========================
 
 model Rider {
-  id        String       @id @default(uuid())
-  name      String
-  location  String
-  bio       String       @db.Text
-  videoUrl  String?      @map("video_url")
-  isActive  Boolean      @default(true) @map("is_active")
-  createdAt DateTime     @default(now()) @map("created_at")
-  updatedAt DateTime     @updatedAt @map("updated_at")
-  images    RiderImage[]
+  id         String       @id @default(uuid())
+  name       String
+  location   String
+  bio        String       @db.Text
+  boardModel String?      @map("board_model")
+  instagram  String?
+  videoUrl   String?      @map("video_url")
+  isActive   Boolean      @default(true) @map("is_active")
+  createdAt  DateTime     @default(now()) @map("created_at")
+  updatedAt  DateTime     @updatedAt @map("updated_at")
+  images     RiderImage[]
 
   @@map("riders")
 }
@@ -345,4 +347,22 @@ model Gallery {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("galleries")
+}
+
+// ==========================
+// CUSTOMER
+// ==========================
+
+model Testimonial {
+  id        String   @id @default(uuid())
+  name      String
+  photoUrl  String?  @map("photo_url")
+  review    String   @db.Text
+  instagram String?
+  order     Int      @default(0)
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("testimonials")
 }

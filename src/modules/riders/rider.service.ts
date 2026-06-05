@@ -46,17 +46,19 @@ export const createRider = async (data: {
     name: string;
     location: string;
     bio: string;
+    boardModel?: string;
+    instagram?: string;
 }) => {
-    const rider = await prisma.rider.create({
+    return prisma.rider.create({
         data: {
             name: data.name,
             location: data.location,
             bio: data.bio,
+            boardModel: data.boardModel || null,
+            instagram: data.instagram || null,
         },
         include: riderInclude,
     });
-
-    return rider;
 };
 
 export const updateRider = async (
@@ -66,6 +68,8 @@ export const updateRider = async (
         location?: string;
         bio?: string;
         isActive?: boolean;
+        boardModel?: string;
+        instagram?: string;
     }
 ) => {
     const rider = await prisma.rider.findUnique({ where: { id } });
@@ -77,6 +81,8 @@ export const updateRider = async (
     if (data.location !== undefined) updateData.location = data.location;
     if (data.bio !== undefined) updateData.bio = data.bio;
     if (data.isActive !== undefined) updateData.isActive = data.isActive;
+    if (data.boardModel !== undefined) updateData.boardModel = data.boardModel;
+    if (data.instagram !== undefined) updateData.instagram = data.instagram;
 
     const updated = await prisma.rider.update({
         where: { id },
@@ -94,7 +100,6 @@ export const deleteRider = async (id: string) => {
     });
     if (!rider) throw { status: 404, message: "Rider not found" };
 
-    // Hapus semua gambar dari Cloudinary terlebih dahulu
     for (const image of rider.images) {
         const publicId = image.url.split("/").slice(-3).join("/").split(".")[0];
         await cloudinary.uploader.destroy(publicId);
@@ -152,72 +157,72 @@ export const uploadRiderImages = async (
 };
 
 export const uploadRiderVideo = async (
-  id: string,
-  file: Express.Multer.File
+    id: string,
+    file: Express.Multer.File
 ) => {
-  const rider = await prisma.rider.findUnique({ where: { id } });
-  if (!rider) throw { status: 404, message: "Rider not found" };
+    const rider = await prisma.rider.findUnique({ where: { id } });
+    if (!rider) throw { status: 404, message: "Rider not found" };
 
-  if (rider.videoUrl && rider.videoUrl.includes("cloudinary.com")) {
-    try {
-      const publicId = rider.videoUrl
+    if (rider.videoUrl && rider.videoUrl.includes("cloudinary.com")) {
+        try {
+            const publicId = rider.videoUrl
+                .split("/")
+                .slice(-3)
+                .join("/")
+                .split(".")[0];
+            await cloudinary.uploader.destroy(publicId, { resource_type: "video" });
+        } catch (err) {
+            console.error("Failed to delete old rider video:", err);
+        }
+    }
+
+    const nameSlug = slugify(rider.name, { lower: true, strict: true });
+
+    const result = await new Promise<any>((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+            {
+                folder: `surf-store/riders/${nameSlug}`,
+                resource_type: "video",
+            },
+            (error, result) => {
+                if (error) reject(error);
+                else resolve(result);
+            }
+        );
+        stream.end(file.buffer);
+    });
+
+    const updated = await prisma.rider.update({
+        where: { id },
+        data: { videoUrl: result.secure_url },
+        include: riderInclude,
+    });
+
+    return updated;
+};
+
+export const deleteRiderVideo = async (id: string) => {
+    const rider = await prisma.rider.findUnique({ where: { id } });
+    if (!rider) throw { status: 404, message: "Rider not found" };
+
+    if (!rider.videoUrl) {
+        throw { status: 400, message: "Rider has no video to delete" };
+    }
+
+    const publicId = rider.videoUrl
         .split("/")
         .slice(-3)
         .join("/")
         .split(".")[0];
-      await cloudinary.uploader.destroy(publicId, { resource_type: "video" });
-    } catch (err) {
-      console.error("Failed to delete old rider video:", err);
-    }
-  }
+    await cloudinary.uploader.destroy(publicId, { resource_type: "video" });
 
-  const nameSlug = slugify(rider.name, { lower: true, strict: true });
+    const updated = await prisma.rider.update({
+        where: { id },
+        data: { videoUrl: null },
+        include: riderInclude,
+    });
 
-  const result = await new Promise<any>((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-      {
-        folder: `surf-store/riders/${nameSlug}`,
-        resource_type: "video",
-      },
-      (error, result) => {
-        if (error) reject(error);
-        else resolve(result);
-      }
-    );
-    stream.end(file.buffer);
-  });
-
-  const updated = await prisma.rider.update({
-    where: { id },
-    data: { videoUrl: result.secure_url },
-    include: riderInclude,
-  });
-
-  return updated;
-};
-
-export const deleteRiderVideo = async (id: string) => {
-  const rider = await prisma.rider.findUnique({ where: { id } });
-  if (!rider) throw { status: 404, message: "Rider not found" };
-
-  if (!rider.videoUrl) {
-    throw { status: 400, message: "Rider has no video to delete" };
-  }
-
-  const publicId = rider.videoUrl
-    .split("/")
-    .slice(-3)
-    .join("/")
-    .split(".")[0];
-  await cloudinary.uploader.destroy(publicId, { resource_type: "video" });
-
-  const updated = await prisma.rider.update({
-    where: { id },
-    data: { videoUrl: null },
-    include: riderInclude,
-  });
-
-  return updated;
+    return updated;
 };
 
 export const deleteRiderImage = async (riderId: string, imageId: string) => {

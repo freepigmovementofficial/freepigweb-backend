@@ -7,64 +7,64 @@ async function main() {
     console.log(" Seeding...\n");
 
 
-// ========================
-// GALLERY
-// ========================
+    // ========================
+    // GALLERY
+    // ========================
 
-// Gallery
-const galleryImages = [
-  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545746/surf-store/gallery/img_6143.jpg",
-  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545751/surf-store/gallery/img_3153.jpg",
-  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545755/surf-store/gallery/img_1783.jpg",
-  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545759/surf-store/gallery/img_6667.jpg",
-  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545762/surf-store/gallery/img_9654.heic.jpg",
-  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545764/surf-store/gallery/img_9727.jpg",
-  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545767/surf-store/gallery/img_9092.jpg",
-  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545770/surf-store/gallery/img_7903.heic.jpg",
-  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545773/surf-store/gallery/img_6150.jpg",
-  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545777/surf-store/gallery/img_1772.jpg",
-  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545781/surf-store/gallery/img_1702.heic.jpg",
-  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545784/surf-store/gallery/img_8950.jpg",
-  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545786/surf-store/gallery/img_0848.jpg",
-  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545790/surf-store/gallery/img_1828.jpg",
-  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545793/surf-store/gallery/img_2677.jpg",
-  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545796/surf-store/gallery/img_7735.jpg",
-  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545799/surf-store/gallery/img_0808.jpg",
-  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545803/surf-store/gallery/img_5229.jpg",
-  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545806/surf-store/gallery/img_6149.jpg",
-  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545810/surf-store/gallery/img_5942.jpg",
-  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545813/surf-store/gallery/img_5941.jpg",
-  "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545815/surf-store/gallery/img_5945.jpg",
-];
+    // Gallery
+    const galleryImages = [
+        "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545746/surf-store/gallery/img_6143.jpg",
+        "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545751/surf-store/gallery/img_3153.jpg",
+        "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545755/surf-store/gallery/img_1783.jpg",
+        "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545759/surf-store/gallery/img_6667.jpg",
+        "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545762/surf-store/gallery/img_9654.heic.jpg",
+        "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545764/surf-store/gallery/img_9727.jpg",
+        "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545767/surf-store/gallery/img_9092.jpg",
+        "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545770/surf-store/gallery/img_7903.heic.jpg",
+        "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545773/surf-store/gallery/img_6150.jpg",
+        "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545777/surf-store/gallery/img_1772.jpg",
+        "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545781/surf-store/gallery/img_1702.heic.jpg",
+        "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545784/surf-store/gallery/img_8950.jpg",
+        "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545786/surf-store/gallery/img_0848.jpg",
+        "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545790/surf-store/gallery/img_1828.jpg",
+        "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545793/surf-store/gallery/img_2677.jpg",
+        "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545796/surf-store/gallery/img_7735.jpg",
+        "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545799/surf-store/gallery/img_0808.jpg",
+        "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545803/surf-store/gallery/img_5229.jpg",
+        "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545806/surf-store/gallery/img_6149.jpg",
+        "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545810/surf-store/gallery/img_5942.jpg",
+        "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545813/surf-store/gallery/img_5941.jpg",
+        "https://res.cloudinary.com/dlkjeffiv/image/upload/v1780545815/surf-store/gallery/img_5945.jpg",
+    ];
 
-await prisma.gallery.deleteMany();
-await prisma.gallery.createMany({
-  data: galleryImages.map((url, index) => ({
-    url,
-    order: index,
-  })),
-});
-console.log("✅ Gallery seeded");
+    await prisma.gallery.deleteMany();
+    await prisma.gallery.createMany({
+        data: galleryImages.map((url, index) => ({
+            url,
+            order: index,
+        })),
+    });
+    console.log("✅ Gallery seeded");
 
 
     // ========================
     // CATEGORIES
     // ========================
-const categoryData = [
-  // Surfboard categories (sudah ada)
-  { name: "Performance", slug: "performance" },
-  { name: "Hybrid/Fishy", slug: "hybrid-fishy" },
-  { name: "Longboard", slug: "longboard" },
-  { name: "Funboard", slug: "funboard" },
-  { name: "Twin Fin", slug: "twin-fin" },
+    const categoryData = [
+        // Surfboard categories (sudah ada)
+        { name: "Performance", slug: "performance" },
+        { name: "Hybrid/Fishy", slug: "hybrid-fishy" },
+        { name: "Longboard", slug: "longboard" },
+        { name: "Funboard", slug: "funboard" },
+        { name: "Twin Fin", slug: "twin-fin" },
 
-  // Accessory categories (baru)
-  { name: "Traction Pad", slug: "traction-pad" },
-  { name: "Leash", slug: "leash" },
-  { name: "Fins", slug: "fins" },
-  { name: "Board Bag", slug: "board-bag" },
-  { name: "Sock", slug: "sock" },
-];
+        // Accessory categories (baru)
+        { name: "Traction Pad", slug: "traction-pad" },
+        { name: "Leash", slug: "leash" },
+        { name: "Fins", slug: "fins" },
+        { name: "Board Bag", slug: "board-bag" },
+        { name: "Sock", slug: "sock" },
+    ];
 
     const categories: Record<string, string> = {};
     for (const cat of categoryData) {
@@ -380,6 +380,71 @@ const categoryData = [
         });
         console.log(`   ✓ ${product.name}`);
     }
+
+    // Testimonial seed
+
+    // Testimonials
+    await prisma.testimonial.deleteMany();
+    await prisma.testimonial.createMany({
+        data: [
+            {
+                name: "Kevin",
+                review: " 
+ 	
+I’m riding Free Pig Mouvement since 4 years.It’s best boards that I ever try.My favourite model is: hyper active twin fins 6’2 
+
+Fast, fun, radical ! I got it in 5’8 for the small days and 6’2 when is bigger. 
+
+Thanks FPM team ! 🔥",
+                instagram: "kevin_surfskate_coach",
+                order: 0,
+                isActive: true,
+            },
+            {
+                name: "Sean Mojo",
+                review: "I was looking for a good mid length board that would handle a variety of conditions that would allow flexible fin set ups so I purchased a 7,6 Majestic model. My first time in the water with it, I knew this was a special board. The Majestic is fast, responsive, easy to paddle, and has perfect hold and release from small to large waves.",
+                instagram: "voodoochillled",
+                order: 1,
+                isActive: true,
+            },
+            {
+                name: "Carlos",
+                review: "I've surfed this board in a wide range of conditions, from powerful Indonesian reef breaks to the diverse waves we get in the Canary Islands, and it has consistently delivered. What stands out most is its versatility. It paddles exceptionally well, generates speed effortlessly, and feels equally comfortable in everyday surf as it does in more powerful, demanding waves.",
+                instagram: "carlosassdru",
+                order: 2,
+                isActive: true,
+            },
+            {
+                name: "Paloma",
+                review: "Our relationship with Freepig Movement Surfboards has evolved far beyond that of a typical customer. It has become a relationship from more than 3 years, built on trust—both with the brand and the Boys, from whom we buy all of our surfboards, as well as the boards for many of our friends when they visit Bali. We choose Freepig Movement because of the durability and performance of their boards, as well as their outstanding value.",
+                instagram: "mitika_art",
+                order: 3,
+                isActive: true,
+            },
+            {
+                name: "Monica",
+                review: "I loved riding this board and shared many beautiful waves with it. However, the custom color faded twice, and despite packing it carefully every time I travelled, it still got dinged by airlines on every trip. That said, FreePig's customer service was excellent: they repainted and repaired it perfectly each time. Overall, I highly recommend FreePig boards—they're fun to ride, reliable, and backed by professional support.",
+                instagram: "monilucaa",
+                order: 4,
+                isActive: true,
+            },
+            {
+                name: "Rebecca",
+                review: "Got my dream board from here. My first ever own surfboard! I had it for 2 years now and it's still perfect! I learned to do my first cutback, first snap, and learned how to duck dive with this board! Would totally recommend this brand for anyone, it's not only for performance but also for intermediate surfers.",
+                instagram: "rebeccalaugesen",
+                order: 5,
+                isActive: true,
+            },
+            {
+                name: "Kasia",
+                review: "I got three boards from free pig movement, each time with custom design. Each time boards were made fast and with exact design I asked for, and they looked even better than I imagine. Boards are very solid, I've been using them very intensively, and they are literally unbreakable. They are solid, but they feel light. I could very highly recommend free pig movement boards.",
+                instagram: "kasia.uncensored",
+                order: 6,
+                isActive: true,
+            },
+        ],
+    });
+    console.log("✅ Testimonials seeded");
 
     console.log("\n Seeding complete!");
 }
