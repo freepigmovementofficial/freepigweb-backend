@@ -195,7 +195,7 @@ export const uploadProductImages = async (
 
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        const imageType = (types[i] || "DECK").toUpperCase() as ImageType;
+        const imageType = (types[i] || (product.productType === "ACCESSORY" ? "GENERAL" : "DECK")).toUpperCase() as ImageType;
 
         const result = await new Promise<any>((resolve, reject) => {
             const stream = cloudinary.uploader.upload_stream(

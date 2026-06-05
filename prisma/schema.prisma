@@ -37,6 +37,7 @@ enum ImageType {
   FINS
   RAIL
   LOGO
+  GENERAL
 }
 
 enum CustomOrderStatus {
