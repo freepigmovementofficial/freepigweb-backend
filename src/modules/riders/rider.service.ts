@@ -99,12 +99,10 @@ export const deleteRider = async (id: string) => {
         include: { images: true },
     });
     if (!rider) throw { status: 404, message: "Rider not found" };
-
     for (const image of rider.images) {
         const publicId = image.url.split("/").slice(-3).join("/").split(".")[0];
         await cloudinary.uploader.destroy(publicId);
     }
-
     await prisma.rider.delete({ where: { id } });
     return { message: "Rider deleted successfully" };
 };

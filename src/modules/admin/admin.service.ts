@@ -6,33 +6,28 @@ const userOmit = { password: true };
 
 export const getDashboardStats = async () => {
     const [
-        totalProducts,
+        totalSurfboards,
+        totalAccessories,
         totalUsers,
-        totalCustomOrders,
-        pendingCustomOrders,
         totalRiders,
-        totalReviews,
-        avgRatingResult,
         totalStoreReviews,
         avgStoreRatingResult,
         totalTestimonials,
+        totalGalleries,
+        totalFeaturedSections,
+        activeNewRelease,
     ] = await Promise.all([
         prisma.product.count({
-            where: { isActive: true },
+            where: { isActive: true, productType: "SURFBOARD" },
+        }),
+        prisma.product.count({
+            where: { isActive: true, productType: "ACCESSORY" },
         }),
         prisma.user.count({
             where: { role: "USER" },
         }),
-        prisma.customOrder.count(),
-        prisma.customOrder.count({
-            where: { status: "PENDING" },
-        }),
         prisma.rider.count({
             where: { isActive: true },
-        }),
-        prisma.review.count(),
-        prisma.review.aggregate({
-            _avg: { rating: true },
         }),
         prisma.storeReview.count(),
         prisma.storeReview.aggregate({
@@ -41,25 +36,35 @@ export const getDashboardStats = async () => {
         prisma.testimonial.count({
             where: { isActive: true },
         }),
+        prisma.gallery.count(),
+        prisma.featuredSection.count(),
+        prisma.newRelease.findFirst({
+            where: { isActive: true },
+            select: { id: true, title: true },
+        }),
     ]);
-
-    const avg = avgRatingResult._avg.rating ?? 0;
-    const averageRating = Math.round(avg * 10) / 10;
 
     const avgStore = avgStoreRatingResult._avg.rating ?? 0;
     const avgStoreRating = Math.round(avgStore * 10) / 10;
 
     return {
-        totalProducts,
+        products: {
+            totalSurfboards,
+            totalAccessories,
+            total: totalSurfboards + totalAccessories,
+        },
         totalUsers,
-        totalCustomOrders,
-        pendingCustomOrders,
         totalRiders,
-        totalReviews,
-        averageRating,
-        totalStoreReviews,
-        avgStoreRating,
+        storeReviews: {
+            total: totalStoreReviews,
+            avgRating: avgStoreRating,
+        },
         totalTestimonials,
+        totalGalleries,
+        totalFeaturedSections,
+        activeNewRelease: activeNewRelease
+            ? { id: activeNewRelease.id, title: activeNewRelease.title }
+            : null,
     };
 };
 
@@ -96,7 +101,7 @@ export const getAllUsers = async (query: {
             skip,
         }),
         prisma.user.count({ where }),
-    ]);    
+    ]);
 
     return {
         users,

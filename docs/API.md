@@ -719,15 +719,24 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
     "success": true,
     "message": "Dashboard statistics fetched successfully",
     "data": {
-      "totalProducts": 32,
+      "products": {
+        "totalSurfboards": 18,
+        "totalAccessories": 14,
+        "total": 32
+      },
       "totalUsers": 211,
-      "totalCustomOrders": 89,
-      "pendingCustomOrders": 12,
       "totalRiders": 8,
-      "totalReviews": 454,
-      "averageRating": 4.6,
-      "totalStoreReviews": 20,
-      "avgStoreRating": 4.5
+      "storeReviews": {
+        "total": 20,
+        "avgRating": 4.5
+      },
+      "totalTestimonials": 12,
+      "totalGalleries": 6,
+      "totalFeaturedSections": 3,
+      "activeNewRelease": {
+        "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "title": "Summer 2026 Collection"
+      }
     }
   }
   ```
