@@ -97,16 +97,14 @@ async function main() {
 
     const results: Record<string, Record<string, string>> = {};
 
-    // Cek apakah folder punya subfolder (per board) atau flat
     const subFolders = await getSubFolders();
 
     if (subFolders.length > 0) {
-        // Struktur: folder utama → subfolder per board → gambar
-        console.log(`📁 Found ${subFolders.length} board folders\n`);
+        console.log(`Found ${subFolders.length} board folders\n`);
 
         for (const folder of subFolders) {
             const boardName = folder.name!.toLowerCase().replace(/\s+/g, "-");
-            console.log(`📦 Processing board: ${folder.name}`);
+            console.log(`Processing board: ${folder.name}`);
             results[boardName] = {};
 
             const files = await getFilesInFolder(folder.id!);
@@ -132,8 +130,7 @@ async function main() {
             console.log("");
         }
     } else {
-        // Struktur flat: semua gambar langsung di folder utama
-        console.log("📁 Flat structure detected, reading all files...\n");
+        console.log("Flat structure detected, reading all files...\n");
         const files = await getAllFiles();
 
         for (const file of files) {
@@ -155,10 +152,10 @@ async function main() {
         }
     }
 
-    console.log("\n✅ Migration complete!\n");
+    console.log("\nMigration complete!\n");
     fs.writeFileSync("scripts/migration-results.json", JSON.stringify(results, null, 2));
-    console.log("📄 Results saved to scripts/migration-results.json");
-    console.log("💡 Use this file as reference when seeding the database.");
+    console.log("Results saved to scripts/migration-results.json");
+    console.log("Use this file as reference when seeding the database.");
 }
 
 main().catch(console.error);
