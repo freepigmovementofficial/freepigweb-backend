@@ -1731,3 +1731,134 @@ The Testimonials module manages customer reviews/testimonials for the Freepig Mo
   }
   ```
 
+---
+
+## 13. Hero Section Module (`/hero`)
+
+The Hero Section module manages the prominent banner area of the website, which typically includes a title, subtitle, optional description, and a background video. Only one hero section can be active at a time. Activating one automatically deactivates the others.
+
+### 13.1 Get Active Hero Section (Public)
+- **Method & Path**: `GET /hero/active`
+- **Description**: Returns the currently active hero section.
+- **Authentication**: None
+- **Example Success Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Active hero section fetched successfully",
+    "data": {
+      "id": "h1a2b3c4-d5e6-7890-abcd-ef1234567890",
+      "title": "Welcome to Freepig Movement",
+      "subtitle": "Premium Surfboards",
+      "description": "Experience the best ride of your life.",
+      "videoUrl": "https://res.cloudinary.com/.../hero-vid.mp4",
+      "isActive": true,
+      "createdAt": "2026-06-08T00:00:00.000Z",
+      "updatedAt": "2026-06-08T00:00:00.000Z"
+    }
+  }
+  ```
+- **Error Response (`404`)**: Returned when no active hero section is found.
+
+---
+
+### 13.2 List All Hero Sections (Admin Only)
+- **Method & Path**: `GET /hero`
+- **Description**: Returns all hero sections ordered by creation date descending.
+- **Authentication**: `ADMIN`
+- **Example Success Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Hero sections fetched successfully",
+    "data": [
+      {
+        "id": "h1a2b3c4-d5e6-7890-abcd-ef1234567890",
+        "title": "Welcome to Freepig Movement",
+        "subtitle": "Premium Surfboards",
+        "description": "Experience the best ride of your life.",
+        "videoUrl": "https://res.cloudinary.com/.../hero-vid.mp4",
+        "isActive": true,
+        "createdAt": "2026-06-08T00:00:00.000Z",
+        "updatedAt": "2026-06-08T00:00:00.000Z"
+      }
+    ]
+  }
+  ```
+
+---
+
+### 13.3 Create Hero Section (Admin Only)
+- **Method & Path**: `POST /hero`
+- **Description**: Creates a new hero section entry. If `isActive` is `true`, all other hero sections are deactivated.
+- **Authentication**: `ADMIN`
+- **Request Body**:
+  | Field | Type | Required | Description |
+  |-------|------|----------|-------------|
+  | `title` | `string` | Yes | Min 2 characters. |
+  | `subtitle` | `string` | Yes | Min 2 characters. |
+  | `description` | `string` | No | Optional description text. |
+  | `isActive` | `boolean` | No | Active status (default: false). |
+
+- **Example Success Response (`201 Created`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Hero section created successfully",
+    "data": {
+      "id": "h1a2b3c4-d5e6-7890-abcd-ef1234567890",
+      "title": "Welcome to Freepig Movement",
+      "subtitle": "Premium Surfboards",
+      "description": "Experience the best ride of your life.",
+      "videoUrl": null,
+      "isActive": false,
+      "createdAt": "2026-06-08T00:00:00.000Z",
+      "updatedAt": "2026-06-08T00:00:00.000Z"
+    }
+  }
+  ```
+
+---
+
+### 13.4 Update Hero Section (Admin Only)
+- **Method & Path**: `PUT /hero/:id`
+- **Description**: Updates text details of an existing hero section.
+- **Authentication**: `ADMIN`
+- **Parameters**:
+  - `id` (Path): Hero Section UUID.
+- **Request Body**:
+  | Field | Type | Required | Description |
+  |-------|------|----------|-------------|
+  | `title` | `string` | No | Min 2 characters. |
+  | `subtitle` | `string` | No | Min 2 characters. |
+  | `description` | `string` | No | Optional description text. |
+
+---
+
+### 13.5 Delete Hero Section (Admin Only)
+- **Method & Path**: `DELETE /hero/:id`
+- **Description**: Deletes a hero section. **Automatically deletes the associated video from Cloudinary** if present.
+- **Authentication**: `ADMIN`
+- **Parameters**:
+  - `id` (Path): Hero Section UUID.
+
+---
+
+### 13.6 Upload Hero Video (Admin Only)
+- **Method & Path**: `POST /hero/:id/video`
+- **Description**: Uploads a video background to Cloudinary. **Automatically deletes the old video from Cloudinary** if it exists.
+- **Authentication**: `ADMIN`
+- **Request Headers**: `Content-Type: multipart/form-data`
+- **Request Body**:
+  | Field | Type | Required | Description |
+  |-------|------|----------|-------------|
+  | `video` | `File` | Yes | Binary video file stream. |
+
+---
+
+### 13.7 Toggle Hero Active (Admin Only)
+- **Method & Path**: `PATCH /hero/:id/toggle`
+- **Description**: Toggles the active status of a hero section. When activating, **all other hero sections are automatically deactivated**.
+- **Authentication**: `ADMIN`
+- **Parameters**:
+  - `id` (Path): Hero Section UUID.
