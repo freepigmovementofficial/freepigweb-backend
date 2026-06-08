@@ -1,6 +1,6 @@
 {
     "build": {
-        "builder": "NIXPACKS"
+        "builder": "RAILPACK"
     },
     "deploy": {
         "startCommand": "npm run build && npx prisma migrate deploy && npx prisma generate && node dist/app.js",
