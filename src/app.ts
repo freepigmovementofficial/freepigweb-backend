@@ -13,14 +13,15 @@ const PORT = process.env.PORT || 5000;
 // Cors
 const allowedOrigins = [
   "http://localhost:3000",
-  "http://localhost:5173", 
-  process.env.CLIENT_URL,  
+  "http://localhost:5173",
+  process.env.CLIENT_URL,
+  process.env.VERCEL_URL,
 ].filter(Boolean) as string[];
 
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
-    
+
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
