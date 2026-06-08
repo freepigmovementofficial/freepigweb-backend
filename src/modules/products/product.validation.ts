@@ -12,6 +12,8 @@ export const createProductSchema = z.object({
     categoryId: z.string().uuid("Invalid category ID").optional(),
     skillLevel: SkillLevelEnum.optional(),
     waveLevels: z.array(WaveLevelEnum).optional(),
+    waveHeightMin: z.number().int().min(0).max(10).optional().nullable(),
+    waveHeightMax: z.number().int().min(0).max(10).optional().nullable(),
     dimensions: z.array(z.object({
       size: z.string(),
       width: z.string(),
@@ -38,6 +40,8 @@ export const updateProductSchema = z.object({
     categoryId: z.string().uuid().optional(),
     skillLevel: SkillLevelEnum.optional(),
     waveLevels: z.array(WaveLevelEnum).optional(),
+    waveHeightMin: z.number().int().min(0).max(10).optional().nullable(),
+    waveHeightMax: z.number().int().min(0).max(10).optional().nullable(),
     isActive: z.boolean().optional(),
   }),
 });

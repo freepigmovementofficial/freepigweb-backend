@@ -87,6 +87,8 @@ export const createProduct = async (data: {
     categoryId: string;
     skillLevel?: SkillLevel;
     waveLevels?: WaveLevel[];
+    waveHeightMin?: number | null;
+    waveHeightMax?: number | null;
     dimensions?: {
         size: string;
         width: string;
@@ -108,6 +110,8 @@ export const createProduct = async (data: {
             categoryId: data.categoryId,
             skillLevel: data.skillLevel || null,
             waveLevels: data.waveLevels ? { set: data.waveLevels } : { set: [] },
+            waveHeightMin: data.waveHeightMin || null,
+            waveHeightMax: data.waveHeightMax || null,
             dimensions: data.dimensions ? { create: data.dimensions } : undefined,
         },
         include: productInclude,
@@ -125,6 +129,8 @@ export const updateProduct = async (
         categoryId?: string;
         skillLevel?: SkillLevel;
         waveLevels?: WaveLevel[];
+        waveHeightMin?: number | null;
+        waveHeightMax?: number | null;
         isActive?: boolean;
     }
 ) => {
@@ -141,6 +147,8 @@ export const updateProduct = async (
     if (data.categoryId) updateData.categoryId = data.categoryId;
     if (data.skillLevel) updateData.skillLevel = data.skillLevel;
     if (data.waveLevels) updateData.waveLevels = data.waveLevels;
+    if (data.waveHeightMin !== undefined) updateData.waveHeightMin = data.waveHeightMin;
+    if (data.waveHeightMax !== undefined) updateData.waveHeightMax = data.waveHeightMax;
     if (data.isActive !== undefined) updateData.isActive = data.isActive;
     if (data.videoUrl !== undefined) {
         if (data.videoUrl === null) {

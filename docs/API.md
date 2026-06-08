@@ -231,6 +231,8 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
           "slug": "freepig-fish-5-8",
           "skillLevel": "INTERMEDIATE",
           "waveLevels": ["SMALL", "MEDIUM"],
+          "waveHeightMin": 2,
+          "waveHeightMax": 6,
           "isActive": true,
           "categoryId": "c47f7d1b-0e1c-43f1-bd1b-c744ef65cb68",
           "images": [
@@ -298,6 +300,8 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
       "description": "Premium speed and fish tail design.",
       "skillLevel": "INTERMEDIATE",
       "waveLevels": ["SMALL", "MEDIUM"],
+      "waveHeightMin": 2,
+      "waveHeightMax": 6,
       "isActive": true,
       "category": {
         "id": "c47f7d1b-0e1c-43f1-bd1b-c744ef65cb68",
@@ -339,6 +343,8 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
   | `categoryId` | `string` | Yes | UUID of category. |
   | `skillLevel` | `SkillLevel` | Yes | Board skill levels. |
   | `waveLevels` | `array` | Yes | List of `WaveLevel` enums (min 1). |
+  | `waveHeightMin` | `number` | No | Minimum wave height (0-10). |
+  | `waveHeightMax` | `number` | No | Maximum wave height (0-10). |
   | `dimensions` | `array object`| Yes | Dimension of board insteed size, width, thickness, and volume|
   
 - **Example Success Response (`201 Created`)**:
@@ -351,6 +357,8 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
       "name": "Freepig Fish 5.8",
       "slug": "freepig-fish-5-8",
       "skillLevel": "INTERMEDIATE",
+      "waveHeightMin": 2,
+      "waveHeightMax": 6,
       "dimensions": [
         {
           "size": "6cm",
@@ -371,7 +379,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 - **Authentication**: `ADMIN`
 - **Parameters**:
   - `id` (Path): Product UUID.
-- **Request Body**: Same properties as create, but all optional. Supports `isActive` (boolean).
+- **Request Body**: Same properties as create, but all optional. Supports `isActive` (boolean), `waveHeightMin` (number), `waveHeightMax` (number).
 
 ---
 

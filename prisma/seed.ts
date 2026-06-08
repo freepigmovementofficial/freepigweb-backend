@@ -389,7 +389,7 @@ async function main() {
         data: [
             {
                 name: "Kevin",
-                review: "",
+                review: "I'm riding Free Pig Mouvement since 4 years. It's best boards that I ever try. My favourite model is : hyper active twin fins 6'2. Fast, fun, radical! I got it in 5'8 for the small days and 6'2 when is bigger. Thanks FPM team!",
                 instagram: "kevin_surfskate_coach",
                 order: 0,
                 isActive: true,
