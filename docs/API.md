@@ -1880,3 +1880,101 @@ The Hero Section module manages the prominent banner area of the website, which 
 - **Authentication**: `ADMIN`
 - **Parameters**:
   - `id` (Path): Hero Section UUID.
+
+---
+
+## 14. Wall Magazine Module (`/wall-magazine`)
+
+The Wall Magazine module manages featured wall magazine articles/posts on the website. Only one wall magazine can be active at a time. Activating one automatically deactivates the others. Images are uploaded directly to Cloudinary.
+
+### 14.1 Get Active Wall Magazine (Public)
+- **Method & Path**: `GET /wall-magazine/active`
+- **Description**: Returns the currently active wall magazine.
+- **Authentication**: None
+- **Example Success Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Active wall magazine fetched successfully",
+    "data": {
+      "id": "w1a2b3c4-d5e6-7890-abcd-ef1234567890",
+      "title": "Welcome to Freepig Movement",
+      "description": "Read our latest article about surf culture.",
+      "imageUrl": "https://res.cloudinary.com/.../magazine-img.jpg",
+      "buttonText": "Read More",
+      "buttonLink": "https://example.com/article",
+      "isActive": true,
+      "createdAt": "2026-06-08T00:00:00.000Z",
+      "updatedAt": "2026-06-08T00:00:00.000Z"
+    }
+  }
+  ```
+- **Error Response (`404`)**: Returned when no active wall magazine is found.
+
+---
+
+### 14.2 List All Wall Magazines (Admin Only)
+- **Method & Path**: `GET /wall-magazine`
+- **Description**: Returns all wall magazines ordered by creation date descending.
+- **Authentication**: `ADMIN`
+
+---
+
+### 14.3 Create Wall Magazine (Admin Only)
+- **Method & Path**: `POST /wall-magazine`
+- **Description**: Creates a new wall magazine entry. If `isActive` is `true`, all other wall magazines are deactivated.
+- **Authentication**: `ADMIN`
+- **Request Body**:
+  | Field | Type | Required | Description |
+  |-------|------|----------|-------------|
+  | `title` | `string` | Yes | Min 1 character. |
+  | `description` | `string` | Yes | Min 1 character. |
+  | `buttonText` | `string` | No | Optional button text. |
+  | `buttonLink` | `string` | No | Optional external link. |
+  | `isActive` | `boolean` | No | Active status (default: false). |
+
+---
+
+### 14.4 Update Wall Magazine (Admin Only)
+- **Method & Path**: `PUT /wall-magazine/:id`
+- **Description**: Updates text details of an existing wall magazine.
+- **Authentication**: `ADMIN`
+- **Parameters**:
+  - `id` (Path): Wall Magazine UUID.
+- **Request Body**:
+  | Field | Type | Required | Description |
+  |-------|------|----------|-------------|
+  | `title` | `string` | No | Min 1 character. |
+  | `description` | `string` | No | Min 1 character. |
+  | `buttonText` | `string` | No | Optional button text. |
+  | `buttonLink` | `string` | No | Optional external link. |
+
+---
+
+### 14.5 Delete Wall Magazine (Admin Only)
+- **Method & Path**: `DELETE /wall-magazine/:id`
+- **Description**: Deletes a wall magazine. **Automatically deletes the associated image from Cloudinary** if present.
+- **Authentication**: `ADMIN`
+- **Parameters**:
+  - `id` (Path): Wall Magazine UUID.
+
+---
+
+### 14.6 Upload Wall Magazine Image (Admin Only)
+- **Method & Path**: `POST /wall-magazine/:id/image`
+- **Description**: Uploads an image to Cloudinary. **Automatically deletes the old image from Cloudinary** if it exists.
+- **Authentication**: `ADMIN`
+- **Request Headers**: `Content-Type: multipart/form-data`
+- **Request Body**:
+  | Field | Type | Required | Description |
+  |-------|------|----------|-------------|
+  | `image` | `File` | Yes | Binary image file stream. |
+
+---
+
+### 14.7 Toggle Wall Magazine Active (Admin Only)
+- **Method & Path**: `PATCH /wall-magazine/:id/toggle`
+- **Description**: Toggles the active status of a wall magazine. When activating, **all other wall magazines are automatically deactivated**.
+- **Authentication**: `ADMIN`
+- **Parameters**:
+  - `id` (Path): Wall Magazine UUID.
