@@ -9,6 +9,7 @@ import {
     toggle,
     destroyImage,
     uploadImages,
+    uploadLogo,
 } from "./new-release.controller";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { requireAdmin } from "../../middlewares/role.middleware";
@@ -34,5 +35,7 @@ router.post("/:id/video", authenticate, requireAdmin, uploadVideoMiddleware.sing
 router.patch("/:id/toggle", authenticate, requireAdmin, toggle);
 router.post("/:id/images", authenticate, requireAdmin, upload.array("images", 2), handleUploadError, uploadImages);
 router.delete("/:id/images/:imageId", authenticate, requireAdmin, destroyImage);
+router.post("/:id/logo", authenticate, requireAdmin, upload.single("logo"), handleUploadError, uploadLogo);
+
 
 export default router;

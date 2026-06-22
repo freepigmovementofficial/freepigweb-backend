@@ -908,6 +908,16 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 
 ---
 
+### 8.10 Upload Release Logo (Admin Only)
+- **Method & Path**: `POST /new-releases/:id/logo`
+- **Description**: Uploads a single logo image for the new release to Cloudinary. **Automatically deletes the previous logo from Cloudinary if it exists**.
+- **Authentication**: `ADMIN`
+- **Request Headers**: `Content-Type: multipart/form-data`
+- **Request Body**:
+  - `logo` (File): Binary image file stream.
+
+---
+
 ## 9. Featured Sections Module (`/featured`)
 
 Featured Sections allow the admin to curate a highlighted collection of products displayed on the storefront. **Only one featured section can be active at any time** — activating one automatically deactivates all others.

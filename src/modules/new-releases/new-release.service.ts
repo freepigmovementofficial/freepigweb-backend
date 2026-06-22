@@ -227,3 +227,40 @@ export const deleteNewReleaseImage = async (id: string, imageId: string) => {
     await prisma.newReleaseImage.delete({ where: { id: imageId } });
     return { message: "Image deleted successfully" };
 };
+
+export const uploadNewReleaseLogo = async (
+    id: string,
+    file: Express.Multer.File
+) => {
+    const existing = await prisma.newRelease.findUnique({ where: { id } });
+    if (!existing) throw { status: 404, message: "New release not found" };
+
+    if (existing.logoUrl && existing.logoUrl.includes("cloudinary.com")) {
+        try {
+            const urlParts = existing.logoUrl.split("/");
+            const fileName = urlParts[urlParts.length - 1].split(".")[0];
+            const folder = urlParts.slice(-3, -1).join("/");
+            const publicId = `${folder}/${fileName}`;
+            await cloudinary.uploader.destroy(publicId);
+        } catch (err) {
+            console.error("Failed to delete old logo:", err);
+        }
+    }
+
+    const result = await new Promise<any>((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+            { folder: "surf-store/new-releases", resource_type: "image" },
+            (error, result) => {
+                if (error) reject(error);
+                else resolve(result);
+            }
+        );
+        stream.end(file.buffer);
+    });
+
+    return prisma.newRelease.update({
+        where: { id },
+        data: { logoUrl: result.secure_url },
+        include: newReleaseInclude,
+    });
+};

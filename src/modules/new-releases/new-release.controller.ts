@@ -9,6 +9,7 @@ import {
     toggleNewReleaseActive,
     uploadNewReleaseImages,
     deleteNewReleaseImage,
+    uploadNewReleaseLogo,
 } from "./new-release.service";
 import { sendSuccess, sendError } from "../../utils/response";
 
@@ -97,6 +98,18 @@ export const destroyImage = async (req: Request, res: Response) => {
     try {
         const result = await deleteNewReleaseImage(req.params.id as string, req.params.imageId as string);
         return sendSuccess(res, result, "Image deleted successfully");
+    } catch (err: any) {
+        return sendError(res, err.message, err.status || 400);
+    }
+};
+
+export const uploadLogo = async (req: Request, res: Response) => {
+    try {
+        if (!req.file) {
+            return sendError(res, "No logo file uploaded", 400);
+        }
+        const updated = await uploadNewReleaseLogo(req.params.id as string, req.file);
+        return sendSuccess(res, updated, "Logo uploaded successfully");
     } catch (err: any) {
         return sendError(res, err.message, err.status || 400);
     }
