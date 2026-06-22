@@ -12,6 +12,7 @@ import storeReviewRoutes from "./modules/store-reviews/store-review.routes";
 import galleryRoutes from "./modules/gallery/gallery.routes";
 import testimonialRoutes from "./modules/testimonials/testimonial.routes";
 import heroRoutes from "./modules/hero/hero.routes";
+import wallMagazineRoutes from "./modules/wall-magazine/wall-magazine.routes";
 // import orderRoutes from "./modules/orders/order.routes";
 
 const router = Router();
@@ -29,6 +30,7 @@ router.use("/store-reviews", storeReviewRoutes);
 router.use("/gallery", galleryRoutes);
 router.use("/testimonials", testimonialRoutes);
 router.use("/hero", heroRoutes);
+router.use("/wall-magazine", wallMagazineRoutes);
 // router.use("/orders", orderRoutes);
 
 export default router;
