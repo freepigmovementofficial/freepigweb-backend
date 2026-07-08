@@ -1,14 +1,22 @@
 import resend from "../config/mailer";
 
-export const sendOTPEmail = async (email: string, otp: string, name: string) => {
-  const digits = otp.split("").map(d =>
-    `<td style="padding:0 4px;">
+export const sendOTPEmail = async (
+  email: string,
+  otp: string,
+  name: string,
+) => {
+  const digits = otp
+    .split("")
+    .map(
+      (d) =>
+        `<td style="padding:0 4px;">
       <div style="width:44px;height:52px;background:#222222;border:1px solid #333333;border-radius:8px;color:#ffffff;font-size:24px;font-weight:700;text-align:center;line-height:52px;font-family:Arial,sans-serif;">${d}</div>
-    </td>`
-  ).join("");
+    </td>`,
+    )
+    .join("");
 
   await resend.emails.send({
-    from: "Freepig Movement <onboarding@resend.dev>",
+    from: "Freepig Movement <halo@updates.freepigmovement.com>",
     to: email,
     subject: "Verify your email – Freepig Movement",
     html: `

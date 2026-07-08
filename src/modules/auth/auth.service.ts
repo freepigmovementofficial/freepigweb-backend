@@ -40,7 +40,7 @@ export const verifyOTP = async (email: string, code: string) => {
         where: { email },
         orderBy: { createdAt: "desc" },
     });
-
+     
     if (!otpRecord) {
         throw new Error("OTP not found. Please register again.");
     }
