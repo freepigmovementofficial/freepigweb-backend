@@ -16,22 +16,25 @@ const allowedOrigins = [
   "http://localhost:5173",
   process.env.CLIENT_URL,
   process.env.VERCEL_URL,
+  process.env.REAL_URL,
 ].filter(Boolean) as string[];
 
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin) return callback(null, true);
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
 
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error(`CORS: Origin ${origin} not allowed`));
-    }
-  },
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-}));
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS: Origin ${origin} not allowed`));
+      }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
 
 // Security
 app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
