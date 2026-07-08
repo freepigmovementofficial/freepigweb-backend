@@ -14,6 +14,7 @@ const PORT = process.env.PORT || 5000;
 const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:5173",
+  "https://freepigmovement.com",
   process.env.CLIENT_URL,
   process.env.VERCEL_URL,
   process.env.REAL_URL,
