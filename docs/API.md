@@ -1,10 +1,11 @@
-# Freepig Movement REST API Documentation 
+# Freepig Movement REST API Documentation
 
 Welcome to the REST API documentation for the **Freepig Movement** store and spotlight platform. This document covers authentication, standard response structures, and details for every single available endpoint.
 
 ---
 
 ## Base URL
+
 - **Local Development**: `http://localhost:5000/api`
 - **Staging / Production**: `https://freepigweb-backend-production.up.railway.app/api`
 
@@ -19,10 +20,12 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 Tokens are retrieved from either of these endpoints:
+
 1. `POST /auth/verify-otp` (Registration verification)
 2. `POST /auth/login` (Standard login)
 
 There are two primary roles:
+
 - **`USER`**: Can view catalogs, add items to wishlists, write reviews, and submit custom orders.
 - **`ADMIN`**: Full administration rights (managing users, orders, releases, statistics).
 
@@ -31,6 +34,7 @@ There are two primary roles:
 ## Standard Response Formats
 
 ### Success Response
+
 ```json
 {
   "success": true,
@@ -42,6 +46,7 @@ There are two primary roles:
 ```
 
 ### Error Response
+
 ```json
 {
   "success": false,
@@ -49,7 +54,9 @@ There are two primary roles:
   "errors": null
 }
 ```
-*(Validation errors from Zod include structured error fields)*:
+
+_(Validation errors from Zod include structured error fields)_:
+
 ```json
 {
   "success": false,
@@ -64,7 +71,9 @@ There are two primary roles:
 ```
 
 ### Paginated Response Structure
+
 Endpoints returning lists use this pagination layout inside the `data` envelope:
+
 ```json
 {
   "success": true,
@@ -87,19 +96,20 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 
 ## Enum Values
 
-| Enum Name | Allowed Values |
-|-----------|----------------|
-| **`Role`** | `USER`, `ADMIN` |
-| **`SkillLevel`** | `BEGINNER`, `INTERMEDIATE`, `ADVANCED`, `GROMS` |
-| **`WaveLevel`** | `SMALL`, `MEDIUM`, `BIG`, `WAVE_POOL` |
-| **`ImageType`** | `DECK`, `BOTTOM`, `NOSE`, `FINS`, `RAIL` |
-| **`CustomOrderStatus`** | `PENDING`, `CONFIRMED`, `CANCELLED` |
+| Enum Name               | Allowed Values                                  |
+| ----------------------- | ----------------------------------------------- |
+| **`Role`**              | `USER`, `ADMIN`                                 |
+| **`SkillLevel`**        | `BEGINNER`, `INTERMEDIATE`, `ADVANCED`, `GROMS` |
+| **`WaveLevel`**         | `SMALL`, `MEDIUM`, `BIG`, `WAVE_POOL`           |
+| **`ImageType`**         | `DECK`, `BOTTOM`, `NOSE`, `FINS`, `RAIL`        |
+| **`CustomOrderStatus`** | `PENDING`, `CONFIRMED`, `CANCELLED`             |
 
 ---
 
 ## 1. Authentication Module (`/auth`)
 
 ### 1.1 Register User
+
 - **Method & Path**: `POST /auth/register`
 - **Description**: Submits registration details and triggers an email with a 6-digit OTP code to verify the account.
 - **Authentication**: None
@@ -124,6 +134,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 1.2 Verify OTP
+
 - **Method & Path**: `POST /auth/verify-otp`
 - **Description**: Verifies the email address using the 6-digit OTP received, saves the user to the database, and logs the user in.
 - **Authentication**: None
@@ -153,6 +164,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 1.3 Login User
+
 - **Method & Path**: `POST /auth/login`
 - **Description**: Authenticates user credentials and returns a Bearer JWT Token.
 - **Authentication**: None
@@ -182,6 +194,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 1.4 Get Profile
+
 - **Method & Path**: `GET /auth/me`
 - **Description**: Retrieves current logged-in user profile info.
 - **Authentication**: `USER` or `ADMIN`
@@ -205,6 +218,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ## 2. Products Module (`/products`)
 
 ### 2.1 List All Products (Public)
+
 - **Method & Path**: `GET /products`
 - **Description**: Returns all active products. Includes average rating calculated from product reviews.
 - **Authentication**: None
@@ -261,6 +275,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 2.2 Get All Categories (Public)
+
 - **Method & Path**: `GET /products/categories`
 - **Description**: Retrieves all surf board categories.
 - **Authentication**: None
@@ -282,6 +297,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 2.3 Get Product Detail (Public)
+
 - **Method & Path**: `GET /products/:slug`
 - **Description**: Returns complete details of a single product using its slug.
 - **Authentication**: None
@@ -332,6 +348,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 2.4 Create Product (Admin Only)
+
 - **Method & Path**: `POST /products`
 - **Description**: Creates a new product. Generates the `slug` automatically based on the `name`.
 - **Authentication**: `ADMIN`
@@ -346,7 +363,6 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
   | `waveHeightMin` | `number` | No | Minimum wave height (0-10). |
   | `waveHeightMax` | `number` | No | Maximum wave height (0-10). |
   | `dimensions` | `array object`| Yes | Dimension of board insteed size, width, thickness, and volume|
-  
 - **Example Success Response (`201 Created`)**:
   ```json
   {
@@ -374,6 +390,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 2.5 Update Product (Admin Only)
+
 - **Method & Path**: `PUT /products/:id`
 - **Description**: Updates product general specs.
 - **Authentication**: `ADMIN`
@@ -384,6 +401,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 2.6 Delete Product (Admin Only)
+
 - **Method & Path**: `DELETE /products/:id`
 - **Description**: Deletes product from database and **automatically destroys all associated images from Cloudinary**.
 - **Authentication**: `ADMIN`
@@ -391,6 +409,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 2.7 Upload Product Images (Admin Only)
+
 - **Method & Path**: `POST /products/:id/images`
 - **Description**: Uploads up to 10 images directly as binary buffers to Cloudinary.
 - **Authentication**: `ADMIN`
@@ -402,6 +421,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 2.8 Delete Product Image (Admin Only)
+
 - **Method & Path**: `DELETE /products/:id/images/:imageId`
 - **Description**: Detaches and deletes the image record, purging the file from Cloudinary storage.
 - **Authentication**: `ADMIN`
@@ -409,6 +429,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 2.9 Set Product Primary Image (Admin Only)
+
 - **Method & Path**: `PATCH /products/:id/images/:imageId/primary`
 - **Description**: Designates a specific product image as the primary (main) photo. All other images of the product will have their primary flag cleared.
 - **Authentication**: `ADMIN`
@@ -444,6 +465,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 2.10 Add Product Dimension (Admin Only)
+
 - **Method & Path**: `POST /products/:id/dimensions`
 - **Description**: Creates specific size variation matrices for a surfboard.
 - **Authentication**: `ADMIN`
@@ -456,6 +478,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 2.11 Delete Product Dimension (Admin Only)
+
 - **Method & Path**: `DELETE /products/:id/dimensions/:dimensionId`
 - **Description**: Deletes a size variant.
 - **Authentication**: `ADMIN`
@@ -465,6 +488,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ## 3. Reviews Module (`/products/:productId/reviews`, `/reviews`)
 
 ### 3.1 List Product Reviews (Public)
+
 - **Method & Path**: `GET /products/:productId/reviews`
 - **Description**: Gets all reviews submitted for a surfboard. Includes paginated results.
 - **Authentication**: None
@@ -473,6 +497,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 3.2 Create Review
+
 - **Method & Path**: `POST /products/:productId/reviews`
 - **Description**: Creates a user product review. Users can only write **one review per product**.
 - **Authentication**: `USER` or `ADMIN`
@@ -498,6 +523,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 3.3 Update Review
+
 - **Method & Path**: `PUT /reviews/:id`
 - **Description**: Updates a review. Users can only modify reviews **belonging to themselves**.
 - **Authentication**: `USER` or `ADMIN`
@@ -506,6 +532,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 3.4 Delete Review
+
 - **Method & Path**: `DELETE /reviews/:id`
 - **Description**: Deletes a review. Users can only delete their own reviews; Admins can delete any review.
 - **Authentication**: `USER` or `ADMIN`
@@ -515,6 +542,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ## 4. Wishlist Module (`/wishlist`)
 
 ### 4.1 Toggle Wishlist Product
+
 - **Method & Path**: `POST /wishlist/:productId`
 - **Description**: Saves or removes a product in a user's wishlist catalog. If it is already wishlisted, it deletes it; otherwise, it creates it.
 - **Authentication**: `USER` or `ADMIN`
@@ -536,6 +564,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 4.2 Get My Wishlist
+
 - **Method & Path**: `GET /wishlist`
 - **Description**: Retrieves all saved wishlist products for the logged-in user.
 - **Authentication**: `USER` or `ADMIN`
@@ -543,6 +572,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 4.3 Check Wishlist Status
+
 - **Method & Path**: `GET /wishlist/:productId/check`
 - **Description**: Simple utility verifying whether a product is currently wishlisted by the user.
 - **Authentication**: `USER` or `ADMIN`
@@ -562,6 +592,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ## 🛹 5. Riders Module (`/riders`)
 
 ### 5.1 List All Riders (Public)
+
 - **Method & Path**: `GET /riders`
 - **Description**: Lists active riders spotlights.
 - **Authentication**: None
@@ -570,6 +601,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 5.2 Get Rider Detail (Public)
+
 - **Method & Path**: `GET /riders/:id`
 - **Description**: Retrieves detailed rider info and ordered photos.
 - **Authentication**: None
@@ -577,6 +609,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 5.3 Create Rider (Admin Only)
+
 - **Method & Path**: `POST /riders`
 - **Description**: Registers a rider profile. Images are uploaded in a subsequent step.
 - **Authentication**: `ADMIN`
@@ -588,6 +621,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 5.4 Update Rider (Admin Only)
+
 - **Method & Path**: `PUT /riders/:id`
 - **Description**: Updates rider fields. Supports `isActive` toggles.
 - **Authentication**: `ADMIN`
@@ -595,6 +629,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 5.5 Delete Rider (Admin Only)
+
 - **Method & Path**: `DELETE /riders/:id`
 - **Description**: Purges a rider profile. **Automatically purges all their rider image files from Cloudinary storage**.
 - **Authentication**: `ADMIN`
@@ -602,6 +637,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 5.6 Upload Rider Images (Admin Only)
+
 - **Method & Path**: `POST /riders/:id/images`
 - **Description**: Uploads photos for a rider profile to Cloudinary. Supports up to 10 files.
 - **Authentication**: `ADMIN`
@@ -612,6 +648,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 5.7 Delete Rider Image (Admin Only)
+
 - **Method & Path**: `DELETE /riders/:id/images/:imageId`
 - **Description**: Deletes a rider image record and purges the file from Cloudinary.
 - **Authentication**: `ADMIN`
@@ -619,6 +656,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 5.8 Upload Rider Video (Admin Only)
+
 - **Method & Path**: `POST /riders/:id/video`
 - **Description**: Uploads a single video profile for the rider to Cloudinary. Supports formats like `mp4`, `mov`, `webm` (up to 50MB). Automatically deletes the previous video file from Cloudinary if one exists.
 - **Authentication**: `ADMIN`
@@ -647,6 +685,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 5.9 Delete Rider Video (Admin Only)
+
 - **Method & Path**: `DELETE /riders/:id/video`
 - **Description**: Detaches the video URL and deletes the video file from Cloudinary storage.
 - **Authentication**: `ADMIN`
@@ -674,6 +713,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ## 6. Custom Orders Module (`/custom-orders`)
 
 ### 6.1 Submit Custom Order Enquiry
+
 - **Method & Path**: `POST /custom-orders`
 - **Description**: Files a custom board enquiry form request. Default status set to `PENDING`.
 - **Authentication**: `USER` or `ADMIN`
@@ -702,6 +742,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 6.2 Get My Custom Orders
+
 - **Method & Path**: `GET /custom-orders/me`
 - **Description**: Lists paginated history of custom orders submitted by the logged-in user.
 - **Authentication**: `USER` or `ADMIN`
@@ -709,6 +750,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 6.3 Get Custom Order Detail
+
 - **Method & Path**: `GET /custom-orders/:id`
 - **Description**: Detail of an order. Users can only view their own custom orders; Admins can view any order.
 - **Authentication**: `USER` or `ADMIN`
@@ -718,6 +760,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ## 7. Admin Module (`/admin`)
 
 ### 7.1 Dashboard Statistics
+
 - **Method & Path**: `GET /admin/dashboard`
 - **Description**: Retrieves aggregate analytics counts for the admin homepage.
 - **Authentication**: `ADMIN`
@@ -752,6 +795,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 7.2 List All Users
+
 - **Method & Path**: `GET /admin/users`
 - **Description**: List of registered user accounts.
 - **Authentication**: `ADMIN`
@@ -760,6 +804,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 7.3 Delete User
+
 - **Method & Path**: `DELETE /admin/users/:id`
 - **Description**: Permenantly removes a user account. Admins **cannot delete other admin accounts**.
 - **Authentication**: `ADMIN`
@@ -767,6 +812,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 7.4 List All Custom Orders
+
 - **Method & Path**: `GET /admin/custom-orders`
 - **Description**: Lists custom order requests.
 - **Authentication**: `ADMIN`
@@ -777,6 +823,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 7.5 Update Custom Order Status
+
 - **Method & Path**: `PATCH /admin/custom-orders/:id/status`
 - **Description**: Transition order status. Can only be updated to `CONFIRMED` or `CANCELLED`.
 - **Authentication**: `ADMIN`
@@ -790,6 +837,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 7.6 List All Global Reviews
+
 - **Method & Path**: `GET /admin/reviews`
 - **Description**: Lists all user reviews on the platform. Includes product metadata.
 - **Authentication**: `ADMIN`
@@ -797,6 +845,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 7.7 Delete Any Review
+
 - **Method & Path**: `DELETE /admin/reviews/:id`
 - **Description**: Force-deletes a review written by any user.
 - **Authentication**: `ADMIN`
@@ -806,6 +855,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ## 8. New Releases Module (`/new-releases`)
 
 ### 8.1 Get Active New Release (Public)
+
 - **Method & Path**: `GET /new-releases/active`
 - **Description**: Fetches the currently active marketing new release with its video stream, featured product details, and up to 2 high-quality release images.
 - **Authentication**: None
@@ -839,6 +889,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 8.2 List All Releases (Admin Only)
+
 - **Method & Path**: `GET /new-releases`
 - **Description**: Lists all releases created in the system.
 - **Authentication**: `ADMIN`
@@ -846,6 +897,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 8.3 Create New Release (Admin Only)
+
 - **Method & Path**: `POST /new-releases`
 - **Description**: Creates a new release campaign entry. Videos and marketing images are uploaded separately.
 - **Authentication**: `ADMIN`
@@ -861,6 +913,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 8.4 Update Release Specs (Admin Only)
+
 - **Method & Path**: `PUT /new-releases/:id`
 - **Description**: Modifies text or active product association.
 - **Authentication**: `ADMIN`
@@ -868,6 +921,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 8.5 Delete Release (Admin Only)
+
 - **Method & Path**: `DELETE /new-releases/:id`
 - **Description**: Removes the release campaign and **purges its background video and release images from Cloudinary**.
 - **Authentication**: `ADMIN`
@@ -875,6 +929,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 8.6 Upload Background Video (Admin Only)
+
 - **Method & Path**: `POST /new-releases/:id/video`
 - **Description**: Uploads a video background file directly to Cloudinary. Stream-uploads in chunks up to 50MB. Allowed formats: `mp4`, `mov`, `webm`. **Automatically deletes the previous release video from Cloudinary if it exists**.
 - **Authentication**: `ADMIN`
@@ -885,6 +940,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 8.7 Toggle Release Active (Admin Only)
+
 - **Method & Path**: `PATCH /new-releases/:id/toggle`
 - **Description**: Toggles active state. If activating this release, **automatically deactivates the currently active release**.
 - **Authentication**: `ADMIN`
@@ -892,6 +948,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 8.8 Upload Release Images (Admin Only)
+
 - **Method & Path**: `POST /new-releases/:id/images`
 - **Description**: Uploads high-quality marketing campaign images to Cloudinary (up to 2 files).
 - **Authentication**: `ADMIN`
@@ -902,6 +959,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 8.9 Delete Release Image (Admin Only)
+
 - **Method & Path**: `DELETE /new-releases/:id/images/:imageId`
 - **Description**: Removes a release image and destroys its asset file on Cloudinary.
 - **Authentication**: `ADMIN`
@@ -909,6 +967,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 ---
 
 ### 8.10 Upload Release Logo (Admin Only)
+
 - **Method & Path**: `POST /new-releases/:id/logo`
 - **Description**: Uploads a single logo image for the new release to Cloudinary. **Automatically deletes the previous logo from Cloudinary if it exists**.
 - **Authentication**: `ADMIN`
@@ -923,6 +982,7 @@ Endpoints returning lists use this pagination layout inside the `data` envelope:
 Featured Sections allow the admin to curate a highlighted collection of products displayed on the storefront. **Only one featured section can be active at any time** — activating one automatically deactivates all others.
 
 ### 9.1 Get Active Featured Section (Public)
+
 - **Method & Path**: `GET /featured/active`
 - **Description**: Fetches the currently active featured section with its full product catalog. Products are ordered by their `order` field (ascending). Each product includes images (sorted by `isPrimary` DESC, `order` ASC), category, name, slug, skillLevel, and waveLevels.
 - **Authentication**: None
@@ -974,6 +1034,7 @@ Featured Sections allow the admin to curate a highlighted collection of products
 ---
 
 ### 9.2 List All Featured Sections (Admin Only)
+
 - **Method & Path**: `GET /featured`
 - **Description**: Lists all featured sections (active and inactive), ordered by creation date descending. Each section includes its associated products with full details.
 - **Authentication**: `ADMIN`
@@ -1006,6 +1067,7 @@ Featured Sections allow the admin to curate a highlighted collection of products
 ---
 
 ### 9.3 Create Featured Section (Admin Only)
+
 - **Method & Path**: `POST /featured`
 - **Description**: Creates a new featured section. The section is created with `isActive: false` by default. Products must be assigned separately.
 - **Authentication**: `ADMIN`
@@ -1033,6 +1095,7 @@ Featured Sections allow the admin to curate a highlighted collection of products
 ---
 
 ### 9.4 Update Featured Section (Admin Only)
+
 - **Method & Path**: `PUT /featured/:id`
 - **Description**: Updates the title of an existing featured section.
 - **Authentication**: `ADMIN`
@@ -1062,6 +1125,7 @@ Featured Sections allow the admin to curate a highlighted collection of products
 ---
 
 ### 9.5 Delete Featured Section (Admin Only)
+
 - **Method & Path**: `DELETE /featured/:id`
 - **Description**: Permanently deletes a featured section. All associated featured product entries are automatically removed via cascade delete.
 - **Authentication**: `ADMIN`
@@ -1081,6 +1145,7 @@ Featured Sections allow the admin to curate a highlighted collection of products
 ---
 
 ### 9.6 Set Featured Products (Admin Only)
+
 - **Method & Path**: `POST /featured/:id/products`
 - **Description**: Replaces the entire product list of a featured section. All existing featured products are removed and replaced with the new list in a single atomic transaction (`prisma.$transaction`). Products are ordered based on their position in the submitted array.
 - **Authentication**: `ADMIN`
@@ -1092,6 +1157,7 @@ Featured Sections allow the admin to curate a highlighted collection of products
   | `productIds` | `string[]` | Yes | Array of product UUIDs. Min 1 item. Order in the array determines display order. |
 
 - **Example Request Body**:
+
   ```json
   {
     "productIds": [
@@ -1103,6 +1169,7 @@ Featured Sections allow the admin to curate a highlighted collection of products
   ```
 
 - **Example Success Response (`200 OK`)**:
+
   ```json
   {
     "success": true,
@@ -1121,7 +1188,11 @@ Featured Sections allow the admin to curate a highlighted collection of products
             "name": "Freepig Fish 5.8",
             "slug": "freepig-fish-5-8",
             "images": [],
-            "category": { "id": "...", "name": "Fish Board", "slug": "fish-board" }
+            "category": {
+              "id": "...",
+              "name": "Fish Board",
+              "slug": "fish-board"
+            }
           }
         }
       ]
@@ -1141,6 +1212,7 @@ Featured Sections allow the admin to curate a highlighted collection of products
 ---
 
 ### 9.7 Remove Product from Featured (Admin Only)
+
 - **Method & Path**: `DELETE /featured/:id/products/:productId`
 - **Description**: Removes a single product from a featured section without affecting other products in the list.
 - **Authentication**: `ADMIN`
@@ -1162,6 +1234,7 @@ Featured Sections allow the admin to curate a highlighted collection of products
 ---
 
 ### 9.8 Toggle Featured Section Active (Admin Only)
+
 - **Method & Path**: `PATCH /featured/:id/toggle`
 - **Description**: Toggles the `isActive` status of a featured section. **When activating a section, all other sections are automatically set to `isActive: false`** to enforce the single-active constraint. Deactivating a section does not affect other sections.
 - **Authentication**: `ADMIN`
@@ -1203,6 +1276,7 @@ Featured Sections allow the admin to curate a highlighted collection of products
 ## 10. Store Reviews Module (`/store-reviews`)
 
 ### 10.1 List Store Reviews (Public)
+
 - **Method & Path**: `GET /store-reviews`
 - **Description**: Gets all reviews submitted for the surf store. Returns paginated results, the average store rating (`avgRating`), total review count (`totalReviews`), and a flag (`hasReviewed`) indicating if the requesting authenticated user has already reviewed the store.
 - **Authentication**: None (Optional Bearer token is parsed from headers to compute `hasReviewed`)
@@ -1252,6 +1326,7 @@ Featured Sections allow the admin to curate a highlighted collection of products
 ---
 
 ### 10.2 Create Store Review
+
 - **Method & Path**: `POST /store-reviews`
 - **Description**: Submits a review for the store. A user can only review the store **once**.
 - **Authentication**: `USER` or `ADMIN`
@@ -1294,6 +1369,7 @@ Featured Sections allow the admin to curate a highlighted collection of products
 ---
 
 ### 10.3 Update Store Review
+
 - **Method & Path**: `PUT /store-reviews/:id`
 - **Description**: Updates the rating or comment of a user's store review. Users can only update their **own** reviews.
 - **Authentication**: `USER` or `ADMIN`
@@ -1331,6 +1407,7 @@ Featured Sections allow the admin to curate a highlighted collection of products
 ---
 
 ### 10.4 Delete Store Review
+
 - **Method & Path**: `DELETE /store-reviews/:id`
 - **Description**: Deletes a store review. Users can only delete their **own** store reviews; Admins can delete any store review.
 - **Authentication**: `USER` or `ADMIN`
@@ -1356,6 +1433,7 @@ Featured Sections allow the admin to curate a highlighted collection of products
 The Gallery module manages the photo gallery for the Freepig Movement storefront. Admins can upload multiple images at once, update captions, and remove photos. All images are stored on Cloudinary under the `surf-store/gallery` folder. Gallery items are ordered using an `order` field that auto-increments from the last existing entry.
 
 ### 11.1 List Gallery Photos (Public)
+
 - **Method & Path**: `GET /gallery`
 - **Description**: Returns all gallery photos ordered by `order` ASC with pagination support.
 - **Authentication**: None
@@ -1402,6 +1480,7 @@ The Gallery module manages the photo gallery for the Freepig Movement storefront
 ---
 
 ### 11.2 Upload Gallery Photos (Admin Only)
+
 - **Method & Path**: `POST /gallery`
 - **Description**: Uploads one or more gallery images to Cloudinary (max 20 files per request). Each uploaded image is saved to the database with an auto-incremented `order` value that continues from the highest existing order in the database (not reset to 0). Images are stored in the `surf-store/gallery` Cloudinary folder.
 - **Authentication**: `ADMIN`
@@ -1446,6 +1525,7 @@ The Gallery module manages the photo gallery for the Freepig Movement storefront
 ---
 
 ### 11.3 Update Gallery Caption (Admin Only)
+
 - **Method & Path**: `PATCH /gallery/:id`
 - **Description**: Updates the caption of a gallery photo. Caption is optional and can be set to `null`.
 - **Authentication**: `ADMIN`
@@ -1482,6 +1562,7 @@ The Gallery module manages the photo gallery for the Freepig Movement storefront
 ---
 
 ### 11.4 Delete Gallery Photo (Admin Only)
+
 - **Method & Path**: `DELETE /gallery/:id`
 - **Description**: Deletes a gallery photo. The image file is **purged from Cloudinary first** before the database record is removed.
 - **Authentication**: `ADMIN`
@@ -1513,6 +1594,7 @@ The Gallery module manages the photo gallery for the Freepig Movement storefront
 The Testimonials module manages customer reviews/testimonials for the Freepig Movement store. All testimonials contain a customer name, review body, optional instagram handle, order sequence, active flag, and customer photo. Photos are uploaded to Cloudinary under the `surf-store/testimonials` folder.
 
 ### 12.1 List Active Testimonials (Public)
+
 - **Method & Path**: `GET /testimonials`
 - **Description**: Returns all active testimonials (`isActive: true`) ordered by `order` ASC with pagination support.
 - **Authentication**: None
@@ -1556,6 +1638,7 @@ The Testimonials module manages customer reviews/testimonials for the Freepig Mo
 ---
 
 ### 12.2 List All Testimonials (Admin Only)
+
 - **Method & Path**: `GET /testimonials/all`
 - **Description**: Returns all testimonials, including inactive ones, ordered by `order` ASC with pagination support.
 - **Authentication**: `ADMIN`
@@ -1610,6 +1693,7 @@ The Testimonials module manages customer reviews/testimonials for the Freepig Mo
 ---
 
 ### 12.3 Create Testimonial (Admin Only)
+
 - **Method & Path**: `POST /testimonials`
 - **Description**: Creates a new testimonial record.
 - **Authentication**: `ADMIN`
@@ -1644,6 +1728,7 @@ The Testimonials module manages customer reviews/testimonials for the Freepig Mo
 ---
 
 ### 12.4 Update Testimonial (Admin Only)
+
 - **Method & Path**: `PUT /testimonials/:id`
 - **Description**: Updates fields of an existing testimonial. All body fields are optional.
 - **Authentication**: `ADMIN`
@@ -1673,6 +1758,7 @@ The Testimonials module manages customer reviews/testimonials for the Freepig Mo
 ---
 
 ### 12.5 Delete Testimonial (Admin Only)
+
 - **Method & Path**: `DELETE /testimonials/:id`
 - **Description**: Deletes a testimonial. The associated customer photo is **purged from Cloudinary first** (if present) before deleting the database record.
 - **Authentication**: `ADMIN`
@@ -1693,6 +1779,7 @@ The Testimonials module manages customer reviews/testimonials for the Freepig Mo
 ---
 
 ### 12.6 Upload Testimonial Photo (Admin Only)
+
 - **Method & Path**: `POST /testimonials/:id/photo`
 - **Description**: Uploads a customer profile photo to Cloudinary. Automatically deletes the previous photo from Cloudinary if one exists.
 - **Authentication**: `ADMIN`
@@ -1724,6 +1811,7 @@ The Testimonials module manages customer reviews/testimonials for the Freepig Mo
 ---
 
 ### 12.7 Toggle Testimonial Status (Admin Only)
+
 - **Method & Path**: `PATCH /testimonials/:id/toggle`
 - **Description**: Toggles the active status (`isActive`) of a testimonial between `true` and `false`.
 - **Authentication**: `ADMIN`
@@ -1756,6 +1844,7 @@ The Testimonials module manages customer reviews/testimonials for the Freepig Mo
 The Hero Section module manages the prominent banner area of the website, which typically includes a title, subtitle, optional description, and a background video. Only one hero section can be active at a time. Activating one automatically deactivates the others.
 
 ### 13.1 Get Active Hero Section (Public)
+
 - **Method & Path**: `GET /hero/active`
 - **Description**: Returns the currently active hero section.
 - **Authentication**: None
@@ -1766,7 +1855,8 @@ The Hero Section module manages the prominent banner area of the website, which 
     "message": "Active hero section fetched successfully",
     "data": {
       "id": "h1a2b3c4-d5e6-7890-abcd-ef1234567890",
-      "title": "Welcome to Freepig Movement",
+      "titlePrimary": "Welcome to ",
+      "titleSecondary": "Freepig Movement",
       "subtitle": "Premium Surfboards",
       "description": "Experience the best ride of your life.",
       "videoUrl": "https://res.cloudinary.com/.../hero-vid.mp4",
@@ -1781,6 +1871,7 @@ The Hero Section module manages the prominent banner area of the website, which 
 ---
 
 ### 13.2 List All Hero Sections (Admin Only)
+
 - **Method & Path**: `GET /hero`
 - **Description**: Returns all hero sections ordered by creation date descending.
 - **Authentication**: `ADMIN`
@@ -1792,7 +1883,8 @@ The Hero Section module manages the prominent banner area of the website, which 
     "data": [
       {
         "id": "h1a2b3c4-d5e6-7890-abcd-ef1234567890",
-        "title": "Welcome to Freepig Movement",
+        "titlePrimary": "Welcome to ",
+        "titleSecondary": "Freepig Movement",
         "subtitle": "Premium Surfboards",
         "description": "Experience the best ride of your life.",
         "videoUrl": "https://res.cloudinary.com/.../hero-vid.mp4",
@@ -1807,13 +1899,15 @@ The Hero Section module manages the prominent banner area of the website, which 
 ---
 
 ### 13.3 Create Hero Section (Admin Only)
+
 - **Method & Path**: `POST /hero`
 - **Description**: Creates a new hero section entry. If `isActive` is `true`, all other hero sections are deactivated.
 - **Authentication**: `ADMIN`
 - **Request Body**:
   | Field | Type | Required | Description |
   |-------|------|----------|-------------|
-  | `title` | `string` | Yes | Min 2 characters. |
+  | `titlePrimary` | `string` | Yes | Min 2 characters. |
+  | `titleSecondary` | `string` | Yes | Min 2 characters. |
   | `subtitle` | `string` | Yes | Min 2 characters. |
   | `description` | `string` | No | Optional description text. |
   | `isActive` | `boolean` | No | Active status (default: false). |
@@ -1825,7 +1919,8 @@ The Hero Section module manages the prominent banner area of the website, which 
     "message": "Hero section created successfully",
     "data": {
       "id": "h1a2b3c4-d5e6-7890-abcd-ef1234567890",
-      "title": "Welcome to Freepig Movement",
+      "titlePrimary": "Welcome to ",
+      "titleSecondary": "Freepig Movement",
       "subtitle": "Premium Surfboards",
       "description": "Experience the best ride of your life.",
       "videoUrl": null,
@@ -1839,6 +1934,7 @@ The Hero Section module manages the prominent banner area of the website, which 
 ---
 
 ### 13.4 Update Hero Section (Admin Only)
+
 - **Method & Path**: `PUT /hero/:id`
 - **Description**: Updates text details of an existing hero section.
 - **Authentication**: `ADMIN`
@@ -1847,13 +1943,15 @@ The Hero Section module manages the prominent banner area of the website, which 
 - **Request Body**:
   | Field | Type | Required | Description |
   |-------|------|----------|-------------|
-  | `title` | `string` | No | Min 2 characters. |
+  | `titlePrimary` | `string` | No | Min 2 characters. |
+  | `titleSecondary` | `string` | Yes | Min 2 characters. |
   | `subtitle` | `string` | No | Min 2 characters. |
   | `description` | `string` | No | Optional description text. |
 
 ---
 
 ### 13.5 Delete Hero Section (Admin Only)
+
 - **Method & Path**: `DELETE /hero/:id`
 - **Description**: Deletes a hero section. **Automatically deletes the associated video from Cloudinary** if present.
 - **Authentication**: `ADMIN`
@@ -1863,6 +1961,7 @@ The Hero Section module manages the prominent banner area of the website, which 
 ---
 
 ### 13.6 Upload Hero Video (Admin Only)
+
 - **Method & Path**: `POST /hero/:id/video`
 - **Description**: Uploads a video background to Cloudinary. **Automatically deletes the old video from Cloudinary** if it exists.
 - **Authentication**: `ADMIN`
@@ -1875,6 +1974,7 @@ The Hero Section module manages the prominent banner area of the website, which 
 ---
 
 ### 13.7 Toggle Hero Active (Admin Only)
+
 - **Method & Path**: `PATCH /hero/:id/toggle`
 - **Description**: Toggles the active status of a hero section. When activating, **all other hero sections are automatically deactivated**.
 - **Authentication**: `ADMIN`
@@ -1888,6 +1988,7 @@ The Hero Section module manages the prominent banner area of the website, which 
 The Wall Magazine module manages featured wall magazine articles/posts on the website. Only one wall magazine can be active at a time. Activating one automatically deactivates the others. Images are uploaded directly to Cloudinary.
 
 ### 14.1 Get Active Wall Magazine (Public)
+
 - **Method & Path**: `GET /wall-magazine/active`
 - **Description**: Returns the currently active wall magazine.
 - **Authentication**: None
@@ -1914,6 +2015,7 @@ The Wall Magazine module manages featured wall magazine articles/posts on the we
 ---
 
 ### 14.2 List All Wall Magazines (Admin Only)
+
 - **Method & Path**: `GET /wall-magazine`
 - **Description**: Returns all wall magazines ordered by creation date descending.
 - **Authentication**: `ADMIN`
@@ -1921,6 +2023,7 @@ The Wall Magazine module manages featured wall magazine articles/posts on the we
 ---
 
 ### 14.3 Create Wall Magazine (Admin Only)
+
 - **Method & Path**: `POST /wall-magazine`
 - **Description**: Creates a new wall magazine entry. If `isActive` is `true`, all other wall magazines are deactivated.
 - **Authentication**: `ADMIN`
@@ -1936,6 +2039,7 @@ The Wall Magazine module manages featured wall magazine articles/posts on the we
 ---
 
 ### 14.4 Update Wall Magazine (Admin Only)
+
 - **Method & Path**: `PUT /wall-magazine/:id`
 - **Description**: Updates text details of an existing wall magazine.
 - **Authentication**: `ADMIN`
@@ -1952,6 +2056,7 @@ The Wall Magazine module manages featured wall magazine articles/posts on the we
 ---
 
 ### 14.5 Delete Wall Magazine (Admin Only)
+
 - **Method & Path**: `DELETE /wall-magazine/:id`
 - **Description**: Deletes a wall magazine. **Automatically deletes the associated image from Cloudinary** if present.
 - **Authentication**: `ADMIN`
@@ -1961,6 +2066,7 @@ The Wall Magazine module manages featured wall magazine articles/posts on the we
 ---
 
 ### 14.6 Upload Wall Magazine Image (Admin Only)
+
 - **Method & Path**: `POST /wall-magazine/:id/image`
 - **Description**: Uploads an image to Cloudinary. **Automatically deletes the old image from Cloudinary** if it exists.
 - **Authentication**: `ADMIN`
@@ -1973,6 +2079,7 @@ The Wall Magazine module manages featured wall magazine articles/posts on the we
 ---
 
 ### 14.7 Toggle Wall Magazine Active (Admin Only)
+
 - **Method & Path**: `PATCH /wall-magazine/:id/toggle`
 - **Description**: Toggles the active status of a wall magazine. When activating, **all other wall magazines are automatically deactivated**.
 - **Authentication**: `ADMIN`
