@@ -1,4 +1,5 @@
 import prisma from "../../config/database";
+import { transformFeaturedSection } from "../../utils/transformers";
 
 const featuredProductInclude = {
     product: {
@@ -29,14 +30,15 @@ export const getActiveFeaturedSection = async () => {
 
     if (!active) throw { status: 404, message: "No active featured section found" };
 
-    return active;
+    return transformFeaturedSection(active);
 };
 
 export const getAllFeaturedSections = async () => {
-    return prisma.featuredSection.findMany({
+    const results = await prisma.featuredSection.findMany({
         include: featuredSectionInclude,
         orderBy: { createdAt: "desc" },
     });
+    return results.map(transformFeaturedSection);
 };
 
 export const createFeaturedSection = async (data: { title: string }) => {
@@ -45,7 +47,7 @@ export const createFeaturedSection = async (data: { title: string }) => {
         include: featuredSectionInclude,
     });
 
-    return section;
+    return transformFeaturedSection(section);
 };
 
 export const updateFeaturedSection = async (id: string, data: { title: string }) => {
@@ -57,8 +59,8 @@ export const updateFeaturedSection = async (id: string, data: { title: string })
         data: { title: data.title },
         include: featuredSectionInclude,
     });
-  
-    return updated;
+
+    return transformFeaturedSection(updated);
 };
 
 export const deleteFeaturedSection = async (id: string) => {
@@ -108,7 +110,7 @@ export const setFeaturedProducts = async (id: string, productIds: string[]) => {
         });
     });
 
-    return result;
+    return result ? transformFeaturedSection(result) : result;
 };
 
 export const removeFeaturedProduct = async (id: string, productId: string) => {
@@ -131,7 +133,6 @@ export const toggleFeaturedSectionActive = async (id: string) => {
     const newStatus = !existing.isActive;
 
     if (newStatus) {
-        // Deactivate all other sections first
         await prisma.featuredSection.updateMany({
             where: { id: { not: id }, isActive: true },
             data: { isActive: false },
@@ -144,5 +145,5 @@ export const toggleFeaturedSectionActive = async (id: string) => {
         include: featuredSectionInclude,
     });
 
-    return updated;
+    return transformFeaturedSection(updated);
 };

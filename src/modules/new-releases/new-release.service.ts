@@ -1,5 +1,6 @@
 import prisma from "../../config/database";
-import cloudinary from "../../config/cloudinary";
+import { uploadImage, uploadVideo, destroyAsset } from "../../utils/cloudinaryHelper";
+import { transformNewRelease, transformUrlItem } from "../../utils/transformers";
 
 const newReleaseInclude = {
     product: {
@@ -19,14 +20,15 @@ export const getActiveNewRelease = async () => {
 
     if (!active) throw { status: 404, message: "No active new release found" };
 
-    return active;
+    return transformNewRelease(active);
 };
 
 export const getAllNewReleases = async () => {
-    return prisma.newRelease.findMany({
+    const results = await prisma.newRelease.findMany({
         include: newReleaseInclude,
         orderBy: { createdAt: "desc" },
     });
+    return results.map(transformNewRelease);
 };
 
 export const createNewRelease = async (data: {
@@ -56,7 +58,7 @@ export const createNewRelease = async (data: {
         include: newReleaseInclude,
     });
 
-    return newRelease;
+    return transformNewRelease(newRelease);
 };
 
 export const updateNewRelease = async (
@@ -76,27 +78,16 @@ export const updateNewRelease = async (
         include: newReleaseInclude,
     });
 
-    return updated;
+    return transformNewRelease(updated);
 };
 
 export const deleteNewRelease = async (id: string) => {
     const existing = await prisma.newRelease.findUnique({ where: { id } });
     if (!existing) throw { status: 404, message: "New release not found" };
 
-    if (existing.videoUrl && existing.videoUrl.includes("cloudinary.com")) {
-        try {
-            const publicId = existing.videoUrl
-                .split("/")
-                .slice(-3)
-                .join("/")
-                .split(".")[0];
-            await cloudinary.uploader.destroy(publicId, { resource_type: "video" });
-        } catch (err) {
-            console.error("Failed to delete video from Cloudinary:", err);
-        }
-    }
-
+    await destroyAsset(existing.videoUrl, "video");
     await prisma.newRelease.delete({ where: { id } });
+
     return { message: "New release deleted successfully" };
 };
 
@@ -107,32 +98,9 @@ export const uploadNewReleaseVideo = async (
     const existing = await prisma.newRelease.findUnique({ where: { id } });
     if (!existing) throw { status: 404, message: "New release not found" };
 
-    if (existing.videoUrl && existing.videoUrl.includes("cloudinary.com")) {
-        try {
-            const publicId = existing.videoUrl
-                .split("/")
-                .slice(-3)
-                .join("/")
-                .split(".")[0];
-            await cloudinary.uploader.destroy(publicId, { resource_type: "video" });
-        } catch (err) {
-            console.error("Failed to delete old video:", err);
-        }
-    }
+    await destroyAsset(existing.videoUrl, "video");
 
-    const result = await new Promise<any>((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-            {
-                folder: "surf-store/new-releases",
-                resource_type: "video",
-            },
-            (error, result) => {
-                if (error) reject(error);
-                else resolve(result);
-            }
-        );
-        stream.end(file.buffer);
-    });
+    const result = await uploadVideo(file.buffer, "surf-store/new-releases");
 
     const updated = await prisma.newRelease.update({
         where: { id },
@@ -140,7 +108,7 @@ export const uploadNewReleaseVideo = async (
         include: newReleaseInclude,
     });
 
-    return updated;
+    return transformNewRelease(updated);
 };
 
 export const toggleNewReleaseActive = async (id: string) => {
@@ -162,7 +130,7 @@ export const toggleNewReleaseActive = async (id: string) => {
         include: newReleaseInclude,
     });
 
-    return updated;
+    return transformNewRelease(updated);
 };
 
 export const uploadNewReleaseImages = async (
@@ -183,19 +151,7 @@ export const uploadNewReleaseImages = async (
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
 
-        const result = await new Promise<any>((resolve, reject) => {
-            const stream = cloudinary.uploader.upload_stream(
-                {
-                    folder: "surf-store/new-releases",
-                    resource_type: "image",
-                },
-                (error, result) => {
-                    if (error) reject(error);
-                    else resolve(result);
-                }
-            );
-            stream.end(file.buffer);
-        });
+        const result = await uploadImage(file.buffer, "surf-store/new-releases");
 
         const image = await prisma.newReleaseImage.create({
             data: {
@@ -205,7 +161,7 @@ export const uploadNewReleaseImages = async (
             },
         });
 
-        uploadedImages.push(image);
+        uploadedImages.push(transformUrlItem(image));
     }
 
     return uploadedImages;
@@ -221,10 +177,9 @@ export const deleteNewReleaseImage = async (id: string, imageId: string) => {
         throw { status: 400, message: "Image does not belong to this new release" };
     }
 
-    const publicId = image.url.split("/").slice(-3).join("/").split(".")[0];
-    await cloudinary.uploader.destroy(publicId);
-
+    await destroyAsset(image.url, "image");
     await prisma.newReleaseImage.delete({ where: { id: imageId } });
+
     return { message: "Image deleted successfully" };
 };
 
@@ -235,32 +190,15 @@ export const uploadNewReleaseLogo = async (
     const existing = await prisma.newRelease.findUnique({ where: { id } });
     if (!existing) throw { status: 404, message: "New release not found" };
 
-    if (existing.logoUrl && existing.logoUrl.includes("cloudinary.com")) {
-        try {
-            const urlParts = existing.logoUrl.split("/");
-            const fileName = urlParts[urlParts.length - 1].split(".")[0];
-            const folder = urlParts.slice(-3, -1).join("/");
-            const publicId = `${folder}/${fileName}`;
-            await cloudinary.uploader.destroy(publicId);
-        } catch (err) {
-            console.error("Failed to delete old logo:", err);
-        }
-    }
+    await destroyAsset(existing.logoUrl, "image");
 
-    const result = await new Promise<any>((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-            { folder: "surf-store/new-releases", resource_type: "image" },
-            (error, result) => {
-                if (error) reject(error);
-                else resolve(result);
-            }
-        );
-        stream.end(file.buffer);
-    });
+    const result = await uploadImage(file.buffer, "surf-store/new-releases");
 
-    return prisma.newRelease.update({
+    const updated = await prisma.newRelease.update({
         where: { id },
         data: { logoUrl: result.secure_url },
         include: newReleaseInclude,
     });
+
+    return transformNewRelease(updated);
 };

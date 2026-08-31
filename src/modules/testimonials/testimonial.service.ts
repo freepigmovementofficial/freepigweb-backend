@@ -1,5 +1,6 @@
 import prisma from "../../config/database";
-import cloudinary from "../../config/cloudinary";
+import { uploadImage, destroyAsset } from "../../utils/cloudinaryHelper";
+import { transformTestimonial } from "../../utils/transformers";
 import { getPagination, getPaginationMeta } from "../../utils/pagination";
 
 export const getActiveTestimonials = async (query: { page?: string; limit?: string }) => {
@@ -20,7 +21,7 @@ export const getActiveTestimonials = async (query: { page?: string; limit?: stri
     ]);
 
     return {
-        testimonials,
+        testimonials: testimonials.map(transformTestimonial),
         meta: getPaginationMeta(total, page, limit),
     };
 };
@@ -40,7 +41,7 @@ export const getAllTestimonials = async (query: { page?: string; limit?: string 
     ]);
 
     return {
-        testimonials,
+        testimonials: testimonials.map(transformTestimonial),
         meta: getPaginationMeta(total, page, limit),
     };
 };
@@ -52,7 +53,7 @@ export const createTestimonial = async (data: {
     order?: number;
     isActive?: boolean;
 }) => {
-    return prisma.testimonial.create({
+    const result = await prisma.testimonial.create({
         data: {
             name: data.name,
             review: data.review,
@@ -61,6 +62,7 @@ export const createTestimonial = async (data: {
             isActive: data.isActive ?? true,
         },
     });
+    return transformTestimonial(result);
 };
 
 export const updateTestimonial = async (
@@ -83,29 +85,20 @@ export const updateTestimonial = async (
     if (data.order !== undefined) updateData.order = data.order;
     if (data.isActive !== undefined) updateData.isActive = data.isActive;
 
-    return prisma.testimonial.update({
+    const result = await prisma.testimonial.update({
         where: { id },
         data: updateData,
     });
+    return transformTestimonial(result);
 };
 
 export const deleteTestimonial = async (id: string) => {
     const testimonial = await prisma.testimonial.findUnique({ where: { id } });
     if (!testimonial) throw { status: 404, message: "Testimonial not found" };
 
-    if (testimonial.photoUrl && testimonial.photoUrl.includes("cloudinary.com")) {
-        try {
-            const urlParts = testimonial.photoUrl.split("/");
-            const fileName = urlParts[urlParts.length - 1].split(".")[0];
-            const folder = urlParts.slice(-3, -1).join("/");
-            const publicId = `${folder}/${fileName}`;
-            await cloudinary.uploader.destroy(publicId);
-        } catch (err) {
-            console.error("Failed to delete photo from Cloudinary:", err);
-        }
-    }
-
+    await destroyAsset(testimonial.photoUrl, "image");
     await prisma.testimonial.delete({ where: { id } });
+
     return { message: "Testimonial deleted successfully" };
 };
 
@@ -116,44 +109,24 @@ export const uploadTestimonialPhoto = async (
     const testimonial = await prisma.testimonial.findUnique({ where: { id } });
     if (!testimonial) throw { status: 404, message: "Testimonial not found" };
 
-    if (testimonial.photoUrl && testimonial.photoUrl.includes("cloudinary.com")) {
-        try {
-            const urlParts = testimonial.photoUrl.split("/");
-            const fileName = urlParts[urlParts.length - 1].split(".")[0];
-            const folder = urlParts.slice(-3, -1).join("/");
-            const publicId = `${folder}/${fileName}`;
-            await cloudinary.uploader.destroy(publicId);
-        } catch (err) {
-            console.error("Failed to delete old photo from Cloudinary:", err);
-        }
-    }
+    await destroyAsset(testimonial.photoUrl, "image");
 
-    const result = await new Promise<any>((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-            {
-                folder: "surf-store/testimonials",
-                resource_type: "image",
-            },
-            (error, result) => {
-                if (error) reject(error);
-                else resolve(result);
-            }
-        );
-        stream.end(file.buffer);
-    });
+    const result = await uploadImage(file.buffer, "surf-store/testimonials");
 
-    return prisma.testimonial.update({
+    const updated = await prisma.testimonial.update({
         where: { id },
         data: { photoUrl: result.secure_url },
     });
+    return transformTestimonial(updated);
 };
 
 export const toggleTestimonialActive = async (id: string) => {
     const testimonial = await prisma.testimonial.findUnique({ where: { id } });
     if (!testimonial) throw { status: 404, message: "Testimonial not found" };
 
-    return prisma.testimonial.update({
+    const result = await prisma.testimonial.update({
         where: { id },
         data: { isActive: !testimonial.isActive },
     });
+    return transformTestimonial(result);
 };

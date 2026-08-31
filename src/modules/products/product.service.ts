@@ -1,5 +1,6 @@
 import prisma from "../../config/database";
-import cloudinary from "../../config/cloudinary";
+import { uploadImage, destroyAsset } from "../../utils/cloudinaryHelper";
+import { transformProduct, transformUrlItem } from "../../utils/transformers";
 import { getPagination, getPaginationMeta } from "../../utils/pagination";
 import { SkillLevel, WaveLevel, ImageType, ProductType } from "@prisma/client";
 import slugify from "slugify";
@@ -58,10 +59,9 @@ export const getProducts = async (query: {
         prisma.product.count({ where }),
     ]);
 
-    const productsWithRating = products.map((p) => ({
-        ...p,
-        avgRating: calcAvgRating(p.reviews),
-    }));
+    const productsWithRating = products.map((p) =>
+        transformProduct({ ...p, avgRating: calcAvgRating(p.reviews) })
+    );
 
     return {
         products: productsWithRating,
@@ -77,7 +77,7 @@ export const getProductBySlug = async (slug: string) => {
 
     if (!product) throw new Error("Product not found");
 
-    return { ...product, avgRating: calcAvgRating(product.reviews) };
+    return transformProduct({ ...product, avgRating: calcAvgRating(product.reviews) });
 };
 
 export const createProduct = async (data: {
@@ -117,7 +117,7 @@ export const createProduct = async (data: {
         include: productInclude,
     });
 
-    return product;
+    return transformProduct(product);
 };
 
 export const updateProduct = async (
@@ -166,7 +166,7 @@ export const updateProduct = async (
         include: productInclude,
     });
 
-    return updated;
+    return transformProduct(updated);
 };
 
 export const deleteProduct = async (id: string) => {
@@ -177,8 +177,7 @@ export const deleteProduct = async (id: string) => {
     if (!product) throw new Error("Product not found");
 
     for (const image of product.images) {
-        const publicId = image.url.split("/").slice(-3).join("/").split(".")[0];
-        await cloudinary.uploader.destroy(publicId);
+        await destroyAsset(image.url, "image");
     }
 
     await prisma.product.delete({ where: { id } });
@@ -205,19 +204,10 @@ export const uploadProductImages = async (
         const file = files[i];
         const imageType = (types[i] || (product.productType === "ACCESSORY" ? "GENERAL" : "DECK")).toUpperCase() as ImageType;
 
-        const result = await new Promise<any>((resolve, reject) => {
-            const stream = cloudinary.uploader.upload_stream(
-                {
-                    folder: `surf-store/products/${product.slug}`,
-                    resource_type: "image",
-                },
-                (error, result) => {
-                    if (error) reject(error);
-                    else resolve(result);
-                }
-            );
-            stream.end(file.buffer);
-        });
+        const result = await uploadImage(
+            file.buffer,
+            `surf-store/products/${product.slug}`
+        );
 
         const image = await prisma.productImage.create({
             data: {
@@ -228,7 +218,7 @@ export const uploadProductImages = async (
             },
         });
 
-        uploadedImages.push(image);
+        uploadedImages.push(transformUrlItem(image));
     }
 
     return uploadedImages;
@@ -238,10 +228,9 @@ export const deleteProductImage = async (imageId: string) => {
     const image = await prisma.productImage.findUnique({ where: { id: imageId } });
     if (!image) throw new Error("Image not found");
 
-    const publicId = image.url.split("/").slice(-3).join("/").split(".")[0];
-    await cloudinary.uploader.destroy(publicId);
-
+    await destroyAsset(image.url, "image");
     await prisma.productImage.delete({ where: { id: imageId } });
+
     return { message: "Image deleted successfully" };
 };
 
@@ -267,10 +256,12 @@ export const setProductPrimaryImage = async (productId: string, imageId: string)
         }),
     ]);
 
-    return prisma.product.findUnique({
+    const product = await prisma.product.findUnique({
         where: { id: productId },
         include: productInclude,
     });
+
+    return product ? transformProduct(product) : product;
 };
 
 // Manage Dimension

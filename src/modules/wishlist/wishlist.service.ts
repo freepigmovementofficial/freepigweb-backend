@@ -1,4 +1,5 @@
 import prisma from "../../config/database";
+import { transformWishlistItem } from "../../utils/transformers";
 
 export const toggleWishlist = async (userId: string, productId: string) => {
     const product = await prisma.product.findUnique({
@@ -31,7 +32,7 @@ export const toggleWishlist = async (userId: string, productId: string) => {
         },
     });
 
-    return { action: "added" as const, wishlist };
+    return { action: "added" as const, wishlist: transformWishlistItem(wishlist) };
 };
 
 export const getUserWishlists = async (userId: string) => {
@@ -48,7 +49,7 @@ export const getUserWishlists = async (userId: string) => {
         orderBy: { createdAt: "desc" },
     });
 
-    return wishlists;
+    return wishlists.map(transformWishlistItem);
 };
 
 export const checkWishlist = async (userId: string, productId: string) => {

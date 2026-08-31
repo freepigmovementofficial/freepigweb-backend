@@ -1,18 +1,20 @@
 import prisma from "../../config/database";
-import cloudinary from "../../config/cloudinary";
+import { uploadImage, destroyAsset } from "../../utils/cloudinaryHelper";
+import { transformWallMagazine } from "../../utils/transformers";
 
 export const getActiveWallMagazine = async () => {
     const active = await prisma.wallMagazine.findFirst({
         where: { isActive: true },
     });
     if (!active) throw { status: 404, message: "No active wall magazine found" };
-    return active;
+    return transformWallMagazine(active);
 };
 
 export const getAllWallMagazines = async () => {
-    return prisma.wallMagazine.findMany({
+    const results = await prisma.wallMagazine.findMany({
         orderBy: { createdAt: "desc" },
     });
+    return results.map(transformWallMagazine);
 };
 
 export const createWallMagazine = async (data: {
@@ -31,7 +33,7 @@ export const createWallMagazine = async (data: {
         });
     }
 
-    return prisma.wallMagazine.create({
+    const result = await prisma.wallMagazine.create({
         data: {
             title: data.title,
             description: data.description,
@@ -40,6 +42,7 @@ export const createWallMagazine = async (data: {
             isActive,
         },
     });
+    return transformWallMagazine(result);
 };
 
 export const updateWallMagazine = async (
@@ -54,29 +57,20 @@ export const updateWallMagazine = async (
     const existing = await prisma.wallMagazine.findUnique({ where: { id } });
     if (!existing) throw { status: 404, message: "Wall magazine not found" };
 
-    return prisma.wallMagazine.update({
+    const result = await prisma.wallMagazine.update({
         where: { id },
         data,
     });
+    return transformWallMagazine(result);
 };
 
 export const deleteWallMagazine = async (id: string) => {
     const existing = await prisma.wallMagazine.findUnique({ where: { id } });
     if (!existing) throw { status: 404, message: "Wall magazine not found" };
 
-    if (existing.imageUrl && existing.imageUrl.includes("cloudinary.com")) {
-        try {
-            const urlParts = existing.imageUrl.split("/");
-            const fileName = urlParts[urlParts.length - 1].split(".")[0];
-            const folder = urlParts.slice(-3, -1).join("/");
-            const publicId = `${folder}/${fileName}`;
-            await cloudinary.uploader.destroy(publicId);
-        } catch (err) {
-            console.error("Failed to delete image from Cloudinary:", err);
-        }
-    }
-
+    await destroyAsset(existing.imageUrl, "image");
     await prisma.wallMagazine.delete({ where: { id } });
+
     return { message: "Wall magazine deleted successfully" };
 };
 
@@ -84,33 +78,15 @@ export const uploadWallMagazineImage = async (id: string, file: Express.Multer.F
     const existing = await prisma.wallMagazine.findUnique({ where: { id } });
     if (!existing) throw { status: 404, message: "Wall magazine not found" };
 
-    if (existing.imageUrl && existing.imageUrl.includes("cloudinary.com")) {
-        try {
-            const urlParts = existing.imageUrl.split("/");
-            const fileName = urlParts[urlParts.length - 1].split(".")[0];
-            const folder = urlParts.slice(-3, -1).join("/");
-            const publicId = `${folder}/${fileName}`;
-            await cloudinary.uploader.destroy(publicId);
-        } catch (err) {
-            console.error("Failed to delete old image:", err);
-        }
-    }
+    await destroyAsset(existing.imageUrl, "image");
 
-    const result = await new Promise<any>((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-            { folder: "surf-store/wall-magazine", resource_type: "image" },
-            (error, result) => {
-                if (error) reject(error);
-                else resolve(result);
-            }
-        );
-        stream.end(file.buffer);
-    });
+    const result = await uploadImage(file.buffer, "surf-store/wall-magazine");
 
-    return prisma.wallMagazine.update({
+    const updated = await prisma.wallMagazine.update({
         where: { id },
         data: { imageUrl: result.secure_url },
     });
+    return transformWallMagazine(updated);
 };
 
 export const toggleWallMagazineActive = async (id: string) => {
@@ -126,8 +102,9 @@ export const toggleWallMagazineActive = async (id: string) => {
         });
     }
 
-    return prisma.wallMagazine.update({
+    const result = await prisma.wallMagazine.update({
         where: { id },
         data: { isActive: newStatus },
     });
+    return transformWallMagazine(result);
 };
