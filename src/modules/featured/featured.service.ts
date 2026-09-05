@@ -9,6 +9,7 @@ const featuredProductInclude = {
                     { isPrimary: "desc" as const },
                     { order: "asc" as const },
                 ],
+                take: 1, // featured section only needs the primary image per product
             },
             category: true,
         },

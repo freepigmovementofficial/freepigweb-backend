@@ -1,6 +1,6 @@
 import prisma from "../../config/database";
 import { uploadImage, destroyAsset } from "../../utils/cloudinaryHelper";
-import { transformUrlItem } from "../../utils/transformers";
+import { transformUrlItem, transformGalleryItem } from "../../utils/transformers";
 import { getPagination, getPaginationMeta } from "../../utils/pagination";
 
 export const getGalleries = async (query: { page?: string; limit?: string }) => {
@@ -18,7 +18,7 @@ export const getGalleries = async (query: { page?: string; limit?: string }) => 
     ]);
 
     return {
-        galleries: galleries.map(transformUrlItem),
+        galleries: galleries.map(transformGalleryItem),
         meta: getPaginationMeta(total, page, limit),
     };
 };

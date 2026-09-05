@@ -16,8 +16,18 @@ export const extractPublicId = (url: string): string => {
     const idx = url.indexOf(marker);
     if (idx === -1) throw new Error(`Not a valid Cloudinary upload URL: ${url}`);
 
-    return url
-        .slice(idx + marker.length) // strip everything up to and including "/upload/"
+    const afterUpload = url.slice(idx + marker.length);
+
+    // Cloudinary URLs may have transformation params injected before the version segment
+    // (e.g. "f_auto,q_auto/v1780545746/surf-store/..."). We use the version number as a
+    // reliable anchor to skip any transformation segments safely, regardless of how many
+    // params were added. If no version is present (rare), fall back to the raw path.
+    const vIdx = afterUpload.search(/(?:^|\/)v\d+\//);
+    const withVersion = vIdx >= 0
+        ? afterUpload.slice(vIdx).replace(/^\//, "") // strip leading slash if anchor was mid-string
+        : afterUpload;                                // fallback: no version segment in URL
+
+    return withVersion
         .replace(/^v\d+\//, "")      // strip version segment (v1234567890/)
         .replace(/\.[^/.]+$/, "");   // strip file extension (.jpg, .mp4, etc.)
 };
