@@ -20,7 +20,7 @@ const fileFilter = (
 export const upload = multer({
     storage,
     fileFilter,
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+    limits: { fileSize: 20 * 1024 * 1024 }, // 20MB (images are shrunk to max 1920px by sharp before storing)
 });
 
 export const handleUploadError = (
