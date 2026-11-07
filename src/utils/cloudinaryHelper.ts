@@ -1,117 +1,136 @@
-import cloudinary from "../config/cloudinary";
+import crypto from "crypto";
+import sharp from "sharp";
 
 /**
- * Extracts the Cloudinary publicId from a URL robustly, handling any folder depth.
+ * Media helper — now backed by Bunny.net Storage + CDN (previously Cloudinary).
  *
- * Example:
- *   Input:  "https://res.cloudinary.com/demo/image/upload/v123/surf-store/products/my-slug/abc.jpg"
- *   Output: "surf-store/products/my-slug/abc"
+ * The file name and the exported function names are intentionally unchanged so
+ * every module that imports uploadImage / uploadVideo / destroyAsset keeps working.
+ * The returned object still has a `secure_url` field for the same reason.
  *
- * The old pattern `url.split("/").slice(-3).join("/")` only works for 2-level-deep
- * folders (surf-store/folder/file). For 3-level folders (surf-store/products/slug/file)
- * it silently drops the "surf-store/" prefix, making destroy() a no-op.
+ * Required environment variables (set them in Railway):
+ *   BUNNY_STORAGE_ZONE  - name of the Bunny Storage Zone
+ *   BUNNY_STORAGE_KEY   - the Storage Zone password (FTP & API Access)
+ *   BUNNY_CDN_URL       - public Pull Zone URL, e.g. https://namamu.b-cdn.net
+ *   BUNNY_STORAGE_HOST  - optional, storage host of your region.
+ *                         Default: storage.bunnycdn.com (Falkenstein).
+ *                         Singapore: sg.storage.bunnycdn.com
  */
-export const extractPublicId = (url: string): string => {
-    const marker = "/upload/";
-    const idx = url.indexOf(marker);
-    if (idx === -1) throw new Error(`Not a valid Cloudinary upload URL: ${url}`);
 
-    const afterUpload = url.slice(idx + marker.length);
+const getConfig = () => {
+    const zone = process.env.BUNNY_STORAGE_ZONE;
+    const key = process.env.BUNNY_STORAGE_KEY;
+    const cdn = process.env.BUNNY_CDN_URL;
+    const host = process.env.BUNNY_STORAGE_HOST || "storage.bunnycdn.com";
 
-    // Cloudinary URLs may have transformation params injected before the version segment
-    // (e.g. "f_auto,q_auto/v1780545746/surf-store/..."). We use the version number as a
-    // reliable anchor to skip any transformation segments safely, regardless of how many
-    // params were added. If no version is present (rare), fall back to the raw path.
-    const vIdx = afterUpload.search(/(?:^|\/)v\d+\//);
-    const withVersion = vIdx >= 0
-        ? afterUpload.slice(vIdx).replace(/^\//, "") // strip leading slash if anchor was mid-string
-        : afterUpload;                                // fallback: no version segment in URL
+    if (!zone || !key || !cdn) {
+        throw new Error(
+            "Bunny is not configured. Set BUNNY_STORAGE_ZONE, BUNNY_STORAGE_KEY and BUNNY_CDN_URL."
+        );
+    }
 
-    return withVersion
-        .replace(/^v\d+\//, "")      // strip version segment (v1234567890/)
-        .replace(/\.[^/.]+$/, "");   // strip file extension (.jpg, .mp4, etc.)
+    return { zone, key, cdn: cdn.replace(/\/+$/, ""), host };
 };
 
-/**
- * Uploads an image buffer to Cloudinary with automatic quality compression and
- * dimension capping. Images larger than 1920px wide are resized; quality is
- * reduced automatically to minimise file size while preserving visual quality.
- */
-export const uploadImage = (
+const cleanFolder = (folder: string): string => folder.replace(/^\/+|\/+$/g, "");
+
+const randomName = (ext: string): string =>
+    `${Date.now()}-${crypto.randomBytes(6).toString("hex")}.${ext}`;
+
+/** PUTs a buffer to Bunny Storage and returns the public CDN URL. */
+const putToBunny = async (
     buffer: Buffer,
     folder: string,
-    options: Record<string, any> = {}
-): Promise<any> => {
-    return new Promise((resolve, reject) => {
-        cloudinary.uploader
-            .upload_stream(
-                {
-                    folder,
-                    resource_type: "image",
-                    // Incoming transformation: stored file is the compressed version
-                    transformation: [
-                        {
-                            quality: "auto:good", // auto quality — typically 40-70% smaller
-                            width: 1920,
-                            crop: "limit",         // never upscale, only downscale
-                        },
-                    ],
-                    ...options,
-                },
-                (error, result) => {
-                    if (error) reject(error);
-                    else resolve(result);
-                }
-            )
-            .end(buffer);
+    fileName: string,
+    contentType: string
+): Promise<string> => {
+    const { zone, key, cdn, host } = getConfig();
+    const path = `${cleanFolder(folder)}/${fileName}`;
+
+    const res = await fetch(`https://${host}/${zone}/${path}`, {
+        method: "PUT",
+        headers: {
+            AccessKey: key,
+            "Content-Type": contentType,
+        },
+        body: buffer as any,
     });
+
+    if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        throw new Error(`Bunny upload failed (${res.status}): ${text}`);
+    }
+
+    return `${cdn}/${path}`;
 };
 
 /**
- * Uploads a video buffer to Cloudinary with automatic quality compression and
- * MP4 format normalisation. This significantly reduces video file size compared
- * to storing the raw upload.
+ * Uploads an image. The image is auto-rotated, downscaled to max 1920px wide
+ * (never upscaled) and converted to WebP, which keeps files small and keeps
+ * transparency for PNG logos.
  */
-export const uploadVideo = (
+export const uploadImage = async (
     buffer: Buffer,
     folder: string,
-    options: Record<string, any> = {}
+    _options: Record<string, any> = {}
 ): Promise<any> => {
-    return new Promise((resolve, reject) => {
-        cloudinary.uploader
-            .upload_stream(
-                {
-                    folder,
-                    resource_type: "video",
-                    quality: "auto",    // auto quality — typically 40-80% smaller
-                    format: "mp4",      // normalise to mp4 for best browser compatibility
-                    video_codec: "auto",
-                    ...options,
-                },
-                (error, result) => {
-                    if (error) reject(error);
-                    else resolve(result);
-                }
-            )
-            .end(buffer);
-    });
+    const optimized = await sharp(buffer)
+        .rotate()
+        .resize({ width: 1920, withoutEnlargement: true })
+        .webp({ quality: 80 })
+        .toBuffer();
+
+    const url = await putToBunny(optimized, folder, randomName("webp"), "image/webp");
+    return { secure_url: url, url };
 };
 
 /**
- * Destroys a Cloudinary asset by its URL. Uses robust publicId extraction so it
- * works correctly regardless of how many folder levels deep the asset is stored.
- * Errors are caught and logged so they never interrupt the main operation.
+ * Uploads a video as-is (no re-encoding). Tip: export videos as MP4 (H.264)
+ * and compress them before uploading, because Bunny does not transcode here.
+ */
+export const uploadVideo = async (
+    buffer: Buffer,
+    folder: string,
+    _options: Record<string, any> = {}
+): Promise<any> => {
+    // WebM files start with the EBML header 1A 45 DF A3; everything else is treated as MP4/MOV.
+    const isWebm =
+        buffer.length > 4 &&
+        buffer[0] === 0x1a &&
+        buffer[1] === 0x45 &&
+        buffer[2] === 0xdf &&
+        buffer[3] === 0xa3;
+
+    const ext = isWebm ? "webm" : "mp4";
+    const url = await putToBunny(buffer, folder, randomName(ext), isWebm ? "video/webm" : "video/mp4");
+    return { secure_url: url, url };
+};
+
+/**
+ * Deletes a file from Bunny by its public URL. Old Cloudinary URLs and any
+ * other external URLs are ignored. Errors are logged, never thrown, so they
+ * never interrupt the main operation.
  */
 export const destroyAsset = async (
     url: string | null | undefined,
-    resourceType: "image" | "video" = "image"
+    _resourceType: "image" | "video" = "image"
 ): Promise<void> => {
-    if (!url || !url.includes("cloudinary.com")) return;
+    if (!url) return;
 
     try {
-        const publicId = extractPublicId(url);
-        await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
+        const { zone, key, cdn, host } = getConfig();
+        if (!url.startsWith(`${cdn}/`)) return;
+
+        const path = url.slice(cdn.length + 1).split("?")[0];
+        const res = await fetch(`https://${host}/${zone}/${path}`, {
+            method: "DELETE",
+            headers: { AccessKey: key },
+        });
+
+        if (!res.ok && res.status !== 404) {
+            console.error(`Failed to delete Bunny asset (${res.status}): ${path}`);
+        }
     } catch (err) {
-        console.error("Failed to delete Cloudinary asset:", err);
+        console.error("Failed to delete Bunny asset:", err);
     }
 };
